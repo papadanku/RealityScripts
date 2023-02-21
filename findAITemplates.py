@@ -21,8 +21,13 @@ aiTemplateDict = {
     "weapontemplate.create": list()
 }
 
-# Gets all weapon file-paths from specified directory
+outputDict = dict()
+
+# Functions
 def getFilePaths(path, extension) -> list:
+    """
+    Gets all of the files in the directory that ends with an extension
+    """
     fileList = list()
     for root, dir, files, in os.walk(path):
         for fileName in files:
@@ -32,24 +37,11 @@ def getFilePaths(path, extension) -> list:
                 fileList.append(realFilePath)
     return fileList
 
-# Get all configuration files
-for fileType in filePathDict.keys():
-    filePathDict[fileType] = getFilePaths(objectPath, fileType)
-
-# Get all created aiTemplates
 def addTemplates(line):
     for templateLine in aiTemplateDict.keys():
         if templateLine in line.lower():
             line = line.split(" ")[1]
             aiTemplateDict[templateLine].append(line)
-
-for path in filePathDict[".ai"]:
-    with open(path, "r") as file:
-        for line in file:
-            addTemplates(line.strip())
-
-# See if aiTemplate in file is valid
-outputDict = dict()
 
 def isValidTemplate(line):
     for validTemplateList in aiTemplateDict.values():
@@ -69,5 +61,18 @@ def findTemplates(filePath):
                 printString = " ".join(["Missing aiTemplate:", line])
                 print(printString)
 
+# Main operations
+
+# [1] Get all AI and object files
+for fileType in filePathDict.keys():
+    filePathDict[fileType] = getFilePaths(objectPath, fileType)
+
+# [2] Get created aiTemplates
+for path in filePathDict[".ai"]:
+    with open(path, "r") as file:
+        for line in file:
+            addTemplates(line.strip())
+
+# [3] See if aiTemplate in file exists
 for filePath in filePathDict[".tweak"]:
     findTemplates(filePath)

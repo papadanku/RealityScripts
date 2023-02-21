@@ -22,19 +22,6 @@ aiTemplateDict = {
 }
 
 # Functions
-def getFilePaths(path, extension) -> list:
-    """
-    Gets all of the files in the directory that ends with an extension
-    """
-    fileList = list()
-    for root, dir, files, in os.walk(path):
-        for fileName in files:
-            if extension in fileName:
-                realDirPath = os.path.realpath(root)
-                realFilePath = os.path.join(realDirPath, fileName)
-                fileList.append(realFilePath)
-    return fileList
-
 def addTemplates(line):
     for templateLine in aiTemplateDict.keys():
         if templateLine in line.lower():
@@ -61,8 +48,13 @@ def findTemplates(filePath):
 # Main operations
 
 # [1] Get all AI and object files
-for fileType in filePathDict.keys():
-    filePathDict[fileType] = getFilePaths(objectPath, fileType)
+for root, dir, files, in os.walk(objectPath):
+    for file in files:
+        for extension in filePathDict.keys():
+            if extension in file:
+                realDirPath = os.path.realpath(root)
+                realFilePath = os.path.join(realDirPath, file)
+                filePathDict[extension].append(realFilePath)
 
 # [2] Get created aiTemplates
 for path in filePathDict[".ai"]:

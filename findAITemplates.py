@@ -5,9 +5,6 @@
 
 import os
 
-# Directory information
-objectPath = "D:\Program Files (x86)\Project Reality\Project Reality BF2\mods\pr_repo\objects"
-
 # File information
 filePathDict = {
     ".ai": list(),
@@ -46,14 +43,15 @@ def findTemplates(filePath):
                 print(printString)
 
 # Main operations
+objectPath = "D:\Program Files (x86)\Project Reality\Project Reality BF2\mods\pr_repo\objects"
 
 # [1] Get all AI and object files
 for root, dir, files, in os.walk(objectPath):
-    for file in files:
+    for fileName in files:
         for extension in filePathDict.keys():
-            if extension in file:
+            if extension in fileName:
                 realDirPath = os.path.realpath(root)
-                realFilePath = os.path.join(realDirPath, file)
+                realFilePath = os.path.join(realDirPath, fileName)
                 filePathDict[extension].append(realFilePath)
 
 # [2] Get created aiTemplates

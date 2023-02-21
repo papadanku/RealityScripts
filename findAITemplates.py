@@ -21,8 +21,6 @@ aiTemplateDict = {
     "weapontemplate.create": list()
 }
 
-outputDict = dict()
-
 # Functions
 def getFilePaths(path, extension) -> list:
     """
@@ -52,7 +50,6 @@ def isValidTemplate(line):
 
 def findTemplates(filePath):
     with open(filePath, "r") as file:
-        outputDict[filePath] = list()
         for line in file:
             if (".aiTemplate" not in line) or ("rem" in line):
                 continue

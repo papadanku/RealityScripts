@@ -21,11 +21,6 @@ aiDict = {
     "templates": list()
 }
 
-objectKeywords = (
-    "objecttemplate.activesafe genericfirearm",
-    "objecttemplate.activesafe playercontrolobject"
-)
-
 # Functions
 def addTemplates(line):
     for keyWord in aiDict["keywords"]:

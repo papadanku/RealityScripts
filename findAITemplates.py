@@ -35,14 +35,13 @@ def isValidTemplate(line):
     return False
 
 def findTemplates(filePath):
-    fileName = os.path.basename(filePath)
     with open(filePath, "r") as file:
         for line in file:
             if (".aiTemplate" not in line) or ("rem" in line):
                 continue
             if isValidTemplate(line) is False:
                 aiTemplate = line.split(" ")[-1]
-                string = f"{fileName}\n{aiTemplate}"
+                string = f"{filePath}\n{aiTemplate}"
                 print(string)
 
 # Main operations

@@ -11,25 +11,32 @@ filePathDict = {
     ".tweak": list()
 }
 
-aiTemplateDict = {
-    "aitemplate.create": list(),
-    "aitemplateplugin.create": list(),
-    "kittemplate.create": list(),
-    "weapontemplate.create": list()
+aiDict = {
+    "keywords": (
+        "aitemplate.create",
+        "aitemplateplugin.create",
+        "kittemplate.create",
+        "weapontemplate.create"
+    ),
+    "templates": list()
 }
+
+objectKeywords = (
+    "objecttemplate.activesafe genericfirearm",
+    "objecttemplate.activesafe playercontrolobject"
+)
 
 # Functions
 def addTemplates(line):
-    for templateLine in aiTemplateDict.keys():
-        if templateLine in line.lower():
-            line = line.split(" ")[1]
-            aiTemplateDict[templateLine].append(line)
+    for keyWord in aiDict["keywords"]:
+        if keyWord in line.lower():
+            aiTemplate = line.split(" ")[1]
+            aiDict["templates"].append(aiTemplate)
 
 def isValidTemplate(line):
-    for validTemplateList in aiTemplateDict.values():
-        for validTemplate in validTemplateList:
-            if validTemplate in line:
-                return True
+    for aiTemplate in aiDict["templates"]:
+        if aiTemplate in line:
+            return True
     return False
 
 def findTemplates(filePath):
@@ -37,10 +44,10 @@ def findTemplates(filePath):
         for line in file:
             if (".aiTemplate" not in line) or ("rem" in line):
                 continue
-            elif isValidTemplate(line) is False:
-                line = line.strip()
-                printString = " ".join(["Missing aiTemplate:", line])
-                print(printString)
+            if isValidTemplate(line) is False:
+                aiTemplate = line.split(" ")[-1]
+                string = f"\n{filePath}\n{aiTemplate}"
+                print(string)
 
 # Main operations
 objectPath = "D:\Program Files (x86)\Project Reality\Project Reality BF2\mods\pr_repo\objects"

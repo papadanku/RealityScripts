@@ -7,20 +7,21 @@ import os
 
 # File information
 
+extensions = { ".ai", ".tweak" }
+
 filePathDict = {
-    ".ai": list(),
-    ".tweak": list()
+    ".ai": set(),
+    ".tweak": set()
 }
 
-aiDict = {
-    "keywords": (
-        "aitemplate.create",
-        "aitemplateplugin.create",
-        "kittemplate.create",
-        "weapontemplate.create"
-    ),
-    "templates": list()
+templateKeyWords = {
+    "aiTemplate.create",
+    "aiTemplatePlugin.create",
+    "kitTemplate.create",
+    "weaponTemplate.create"
 }
+
+aiTemplates = set()
 
 # Main operations
 
@@ -30,19 +31,18 @@ objectPath = "D:\Program Files (x86)\Project Reality\Project Reality BF2\mods\pr
 
 for root, dir, files, in os.walk(objectPath):
     for fileName in files:
-        for extension in filePathDict.keys():
-            if extension in fileName:
-                realDirPath = os.path.realpath(root)
-                realFilePath = os.path.join(realDirPath, fileName)
-                filePathDict[extension].append(realFilePath)
+        fileExtension = os.path.splitext(fileName)[-1]
+        if fileExtension in extensions:
+            realDirPath = os.path.realpath(root)
+            realFilePath = os.path.join(realDirPath, fileName)
+            filePathDict[fileExtension].add(realFilePath)
 
 # [2] Get created aiTemplates
 
 def addTemplates(line):
-    for keyWord in aiDict["keywords"]:
-        if keyWord in line.lower():
-            aiTemplate = line.split(" ")[1]
-            aiDict["templates"].append(aiTemplate)
+    templateString = line.split(" ")
+    if templateString[0] in templateKeyWords:
+        aiTemplates.add(templateString[1])
 
 for path in filePathDict[".ai"]:
     with open(path, "r") as file:
@@ -51,18 +51,12 @@ for path in filePathDict[".ai"]:
 
 # [3] See if aiTemplate in file exists
 
-def isValidTemplate(line):
-    for aiTemplate in aiDict["templates"]:
-        if aiTemplate in line:
-            return True
-    return False
-
 for filePath in filePathDict[".tweak"]:
     with open(filePath, "r") as file:
         for line in file:
             if (".aiTemplate" not in line) or ("rem" in line):
                 continue
-            if isValidTemplate(line) is False:
-                aiTemplate = line.split(" ")[-1]
+            aiTemplate = line.strip().split(" ")[-1]
+            if aiTemplate not in aiTemplates:
                 string = f"{filePath}\n{aiTemplate}"
                 print(string)

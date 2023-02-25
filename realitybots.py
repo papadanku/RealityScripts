@@ -1,4 +1,4 @@
-# 
+#
 # This module handles extended AI kit selection and dynamic spawning
 # NOTE: Used and redistributed with permission from [VG]X0R
 #
@@ -71,61 +71,67 @@ class aiKitSlot(object):
         archiveFile = zipfile.ZipFile(archivePath, "r")
 
         # Variant data
-        teamVariant = self.teamName + rkits.getKitTeamVariants(self.team)
-        variantLine = 'v_arg1 == "{}"'.format(teamVariant)
         variantPath = "/".join(["kits", self.teamName, "variants.inc"])
-        variantFound = False
+        variantFile = archiveFile.open(variantPath, "r")
 
-        # Initialize kit data
-        kitSet = set()
-        kitDict = dict.fromkeys(self.kitTypes)
-        for key in kitDict.keys():
-            kitDict.update({key: set()})
+        try:
+            # Initialize kit data
+            kitSet = set()
+            kitDict = dict.fromkeys(self.kitTypes)
+            for key in kitDict.keys():
+                kitDict.update({key: set()})
 
-        # Get the list of kits based on what is in (variants.inc)
-        for line in archiveFile.open(variantPath, "r"):
-            line = str(line.decode().strip())
+            # Initialize variant search information
+            variant = self.teamName + rkits.getKitTeamVariants(self.team)
+            variantLine = 'v_arg1 == "{}"'.format(variant)
+            variantFound = False
 
-            # If Python knows the variant & read its runs, break the loop
-            if variantFound and ("run" not in line):
-                break
+            # Get the list of kits based on what is in (variants.inc)
+            for line in variantFile:
+                line = str(line.decode().strip())
 
-            # If Python knows the variant, add the kit to kit string
-            if variantFound and ("preload" not in line):
-                kitPath = "/".join(["kits", self.teamName, line.split()[-1]])
-                kitName = str()
-                kitType = str()
-                # Find kit object's attributes
-                for objectLine in archiveFile.open(kitPath, "r"):
-                    objectLine = str(objectLine.decode().strip())
-                    # Find kit's name and type
-                    if "ObjectTemplate.create Kit" in objectLine:
-                        kitName = str(objectLine.split(" ")[-1])
-                    if "ObjectTemplate.kitType" in objectLine:
-                        kitType = str(objectLine.split(" ")[-1]).lower()
-                    # Append valid kits
-                    if (kitName and kitType) and rkits.kitExists(kitName):
-                        if self.isValidKit(kitName):
-                            kitSet.add(kitName)
-                            kitDict[kitType].add(kitName)
-                        break
-                continue
+                # If Python knows the variant & read its runs, break the loop
+                if variantFound and ("run" not in line):
+                    break
 
-            # If Python encounters a variant line that equals to the one envoked in BF2
-            if variantLine in line:
-                variantFound = True
-                continue
+                # If Python knows the variant, add the kit to kit string
+                if variantFound and ("preload" not in line):
+                    kitPath = "/".join(["kits", self.teamName, line.split()[-1]])
+                    kitFile = archiveFile.open(kitPath, "r")
+                    kitName = str()
+                    kitType = str()
+                    # Find kit object's name and type
+                    try:
+                        for kitLine in kitFile:
+                            kitLine = str(kitLine.decode().strip())
+                            if "ObjectTemplate.create Kit" in kitLine:
+                                kitName = kitLine.split(" ")[-1]
+                            if "ObjectTemplate.kitType" in kitLine:
+                                kitType  = kitLine.split(" ")[-1].lower()
+                            # Append valid kits
+                            if (kitName and kitType) and rkits.kitExists(kitName):
+                                if self.isValidKit(kitName):
+                                    kitSet.add(kitName)
+                                    kitDict[kitType].add(kitName)
+                                break
+                    finally:
+                        kitFile.close()
 
-        # Process kit choices into tuples, add as object attributes
-        # NOTE: Empty kitSlots get random kits
-        for key, value in kitDict.items():
-            if value:
-                self.kits.update({key: tuple(value)})
-            else:
-                self.kits.update({key: tuple(kitSet)})
+                # If Python encounters a variant line that equals to the one envoked in BF2
+                if variantLine in line:
+                    variantFound = True
+                    continue
 
-        # Release archive from memory
-        archiveFile.close()
+            # Process kit choices into tuples, add as object attributes
+            # NOTE: Empty kitSlots get random kits
+            for key, value in kitDict.items():
+                if value:
+                    self.kits.update({key: tuple(value)})
+                else:
+                    self.kits.update({key: tuple(kitSet)})
+        finally:
+            variantFile.close()
+            archiveFile.close()
 
     # Get a list of valid kit soldiers for kitSlots
     def getKitSoldiers(self):

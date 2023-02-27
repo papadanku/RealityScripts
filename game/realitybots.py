@@ -90,32 +90,33 @@ class aiKitSlot(object):
             for line in variantFile:
                 line = str(line.decode().strip())
 
-                # If Python knows the variant & read its runs, break the loop
-                if variantFound and ("run" not in line):
-                    break
-
-                # If Python knows the variant, add the kit to kit string
-                if variantFound and ("preload" not in line):
-                    kitPath = "/".join(["kits", self.teamName, line.split()[-1]])
-                    kitFile = archiveFile.open(kitPath, "r")
-                    kitName = str()
-                    kitType = str()
-                    # Find kit object's name and type
-                    try:
-                        for kitLine in kitFile:
-                            kitLine = str(kitLine.decode().strip())
-                            if "ObjectTemplate.create Kit" in kitLine:
-                                kitName = kitLine.split(" ")[-1]
-                            if "ObjectTemplate.kitType" in kitLine:
-                                kitType  = kitLine.split(" ")[-1].lower()
-                            # Append valid kits
-                            if (kitName and kitType) and rkits.kitExists(kitName):
-                                if self.isValidKit(kitName):
-                                    kitSet.add(kitName)
-                                    kitDict[kitType].add(kitName)
-                                break
-                    finally:
-                        kitFile.close()
+                if variantFound:
+                    # If Python knows the variant & read its runs, break the loop
+                    if "run" not in line:
+                        break
+                    # If Python knows the variant, add the kit to kit string
+                    elif "preload" not in line:
+                        kitPath = "/".join(["kits", self.teamName, line.split()[-1]])
+                        kitFile = archiveFile.open(kitPath, "r")
+                        kitName = str()
+                        kitType = str()
+                        # Find kit object's name and type
+                        try:
+                            for kitLine in kitFile:
+                                kitLine = str(kitLine.decode().strip())
+                                if "ObjectTemplate.create Kit" in kitLine:
+                                    kitName = kitLine.split(" ")[-1]
+                                if "ObjectTemplate.kitType" in kitLine:
+                                    kitType = kitLine.split(" ")[-1].lower()
+                                # Append valid kits
+                                if (kitName and kitType) and rkits.kitExists(kitName):
+                                    if self.isValidKit(kitName):
+                                        kitSet.add(kitName)
+                                        kitDict[kitType].add(kitName)
+                                    break
+                        finally:
+                            kitFile.close()
+                        continue
 
                 # If Python encounters a variant line that equals to the one envoked in BF2
                 if variantLine in line:

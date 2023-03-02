@@ -71,8 +71,9 @@ class getKits(object):
             for variant in factionKits.keys():
                 loaded = factionKits[variant]["loaded"]
                 allocated = factionKits[variant]["allocated"]
-                difference = allocated.difference(loaded)
-                print(f"[{variant}] has missing templates: {difference}")
+                difference = loaded.difference(allocated)
+                if difference:
+                    print(f"[{variant}] has missing templates: {difference}")
 
 # [2] Get all missing templates
 for faction in factionFilePaths:

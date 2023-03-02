@@ -40,7 +40,7 @@ class getKits(object):
         with open(filePath) as file:
             for line in file:
                 kit = line.strip().split(" ")[-1]
-                if "ObjectTemplate.setObjectTemplate" in line and ("rallypoint" not in line):
+                if "ObjectTemplate.setObjectTemplate" in line:
                     allocatedKits.add(kit)
         return allocatedKits
 

@@ -6,7 +6,13 @@
 # Import Python modules
 import os
 
-objectPath = "D:\Program Files (x86)\Project Reality\Project Reality BF2\mods\pr_repo\objects\kits"
+# Get repository path
+def getFolderLocation(*args):
+    repoPath = input("Input repository path: ")
+    targetPath = os.path.join(repoPath, "\\".join(args))
+    return os.path.abspath(targetPath)
+
+objectPath = getFolderLocation("objects", "kits")
 
 # Data
 factionFilePaths = list()
@@ -68,6 +74,8 @@ class getKits(object):
                     elif "preload" not in line:
                         factionKits[variant]["loaded"].add(getKits.loaded(path))
                         continue
+
+            # Print missing kits within faction
             for variant in factionKits.keys():
                 loaded = factionKits[variant]["loaded"]
                 allocated = factionKits[variant]["allocated"]

@@ -27,8 +27,13 @@ templateKeyWords = {
 
 aiTemplates = set()
 
-# Main operations
-objectPath = "D:\Program Files (x86)\Project Reality\Project Reality BF2\mods\pr_repo\objects"
+# Get repository path
+def getFolderLocation(*args):
+    repoPath = input("Input repository path: ")
+    targetPath = os.path.join(repoPath, "\\".join(args))
+    return os.path.abspath(targetPath)
+
+objectPath = getFolderLocation("objects")
 
 # [1] Get all AI and object files
 for root, dir, files, in os.walk(objectPath):

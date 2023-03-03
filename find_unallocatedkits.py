@@ -39,8 +39,13 @@ class getKits(object):
         allocatedKits = set()
         with open(filePath) as file:
             for line in file:
+<<<<<<< Updated upstream
                 kit = line.strip().split(" ")[-1]
                 if "ObjectTemplate.setObjectTemplate" in line:
+=======
+                if "ObjectTemplate.setObjectTemplate" in line:
+                    kit = line.strip().split(" ")[-1]
+>>>>>>> Stashed changes
                     allocatedKits.add(kit)
         return allocatedKits
 

@@ -31,16 +31,16 @@ class getKits(object):
     def loaded(filePath):
         with open(filePath, "r") as file:
             for line in file:
-                if "ObjectTemplate.create" in line:
-                    return line.strip().split(" ")[-1]
+                if line.startswith("ObjectTemplate.create"):
+                    return line.strip().split()[-1]
 
     @staticmethod
     def allocated(filePath):
         allocatedKits = set()
         with open(filePath) as file:
             for line in file:
-                if "ObjectTemplate.setObjectTemplate" in line:
-                    kit = line.strip().split(" ")[-1]
+                if line.startswith("ObjectTemplate.setObjectTemplate"):
+                    kit = line.strip().split()[-1]
                     allocatedKits.add(kit)
         return allocatedKits
 
@@ -53,11 +53,12 @@ class getKits(object):
         # Get missing files
         with open(filePath, "r") as file:
             for line in file:
+                line = line.strip().split()
                 if "endIf" in line:
                     break
                 # Get variant invokation
                 if "v_arg1" in line:
-                    variant = line.strip().split(" ")[-1].replace('"', "")
+                    variant = line[-1].replace('"', "")
                     factionKits[variant] = dict(loaded=set(), allocated=set())
                     continue
                 elif "else" in line:
@@ -66,12 +67,10 @@ class getKits(object):
                     continue
                 # Only add if a variant's loaded
                 if variant and faction:
-                    line = line.strip().split(" ")[-1]
-                    path = os.path.join(objectPath, faction, line)
-                    path = path.replace("\\", "/")
-                    if "preload" in path:
+                    path = os.path.join(objectPath, faction, line[-1])
+                    if "preload" in os.path.abspath(path):
                         factionKits[variant]["allocated"] = getKits.allocated(path)
-                    elif "preload" not in line:
+                    elif "preload" not in path:
                         factionKits[variant]["loaded"].add(getKits.loaded(path))
                         continue
 

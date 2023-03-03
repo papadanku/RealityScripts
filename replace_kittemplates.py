@@ -25,7 +25,7 @@ kitFilePaths = set()
 # [1] Get all kit files
 for root, dir, files, in os.walk(objectPath):
     for fileName in files:
-        if (".tweak" in fileName) and (kitTarget in fileName):
+        if fileName.endswith(".tweak") and (kitTarget in fileName):
             realDirPath = os.path.realpath(root)
             realFilePath = os.path.join(realDirPath, fileName)
             kitFilePaths.add(realFilePath)

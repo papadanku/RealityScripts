@@ -1,5 +1,5 @@
 #
-# Script to detect missing aiTemplates in a repository
+# Script to detect missing aitemplates in a repository
 # Coder: [R-DEV]papadanku
 #
 
@@ -8,57 +8,57 @@ import os
 
 # File information
 
-extensions = {
+file_extensions = {
     ".ai",
     ".tweak"
 }
 
-filePathDict = {
+file_paths = {
     ".ai": set(),
     ".tweak": set()
 }
 
-templateKeyWords = {
+template_words = {
     "aiTemplate.create",
     "aiTemplatePlugin.create",
     "kitTemplate.create",
     "weaponTemplate.create"
 }
 
-aiTemplates = set()
+aitemplates = set()
 
 # Get repository path
-def getFolderLocation(*args):
-    repoPath = input("Input repository path: ")
-    targetPath = os.path.join(repoPath, "\\".join(args))
-    return os.path.abspath(targetPath)
+def get_folder_path(*args):
+    repo_path = input("Input repository path: ")
+    target_path = os.path.join(repo_path, "\\".join(args))
+    return os.path.abspath(target_path)
 
-objectPath = getFolderLocation("objects")
+objectPath = get_folder_path("objects")
 
 # [1] Get all AI and object files
 for root, dir, files, in os.walk(objectPath):
-    for fileName in files:
-        fileExtension = os.path.splitext(fileName)[-1]
-        if fileExtension in extensions:
-            realDirPath = os.path.realpath(root)
-            realFilePath = os.path.join(realDirPath, fileName)
-            filePathDict[fileExtension].add(realFilePath)
+    for file_name in files:
+        file_extension = os.path.splitext(file_name)[-1]
+        if file_extension in file_extensions:
+            dir_path = os.path.realpath(root)
+            file_path = os.path.join(dir_path, file_name)
+            file_paths[file_extension].add(file_path)
 
-# [2] Get created aiTemplates
-for filePath in filePathDict[".ai"]:
-    with open(filePath, "r") as file:
+# [2] Get created aitemplates
+for file_path in file_paths[".ai"]:
+    with open(file_path, "r") as file:
         for line in file:
-            templateString = line.strip().split(" ")
-            if templateString[0] in templateKeyWords:
-                aiTemplates.add(templateString[1])
+            template_str = line.strip().split(" ")
+            if template_str[0] in template_words:
+                aitemplates.add(template_str[1])
 
 # [3] See if aiTemplate in file exists
-for filePath in filePathDict[".tweak"]:
-    with open(filePath, "r") as file:
+for file_path in file_paths[".tweak"]:
+    with open(file_path, "r") as file:
         for line in file:
             if (".aiTemplate" not in line) or ("rem" in line):
                 continue
-            aiTemplate = line.strip().split(" ")[-1]
-            if aiTemplate not in aiTemplates:
-                string = f"{filePath}\n{aiTemplate}"
+            template = line.strip().split(" ")[-1]
+            if template not in aitemplates:
+                string = f"{file_path}\n{template}"
                 print(string)

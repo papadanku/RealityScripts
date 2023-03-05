@@ -7,35 +7,35 @@
 import os
 
 # Get repository path
-def getFolderLocation(*args):
-    repoPath = input("Input repository path: ")
-    targetPath = os.path.join(repoPath, "\\".join(args))
-    return os.path.abspath(targetPath)
+def get_folder_path(*args):
+    repo_path = input("Input repository path: ")
+    target_path = os.path.join(repo_path, "\\".join(args))
+    return os.path.abspath(target_path)
 
-objectPath = getFolderLocation("objects", "kits")
+object_path = get_folder_path("objects", "kits")
 
 # Arguments
-kitTarget = "riflemanat"
-kitTemplateSrc = "AT" 
-kitTemplateDst = "LAT"
+target_str = "riflemanat"
+template_target = "AT" 
+template_replace = "LAT"
 
 # Kit data
-kitFilePaths = set()
+file_paths = set()
 
 # [1] Get all kit files
-for root, dir, files, in os.walk(objectPath):
-    for fileName in files:
-        if fileName.endswith(".tweak") and (kitTarget in fileName):
-            realDirPath = os.path.realpath(root)
-            realFilePath = os.path.join(realDirPath, fileName)
-            kitFilePaths.add(realFilePath)
+for root, dir, files, in os.walk(object_path):
+    for file_name in files:
+        if file_name.endswith(".tweak") and (target_str in file_name):
+            dir_path = os.path.realpath(root)
+            file_path = os.path.join(dir_path, file_name)
+            file_paths.add(file_path)
 
 # [2] Overwrite files
-for kitPath in kitFilePaths:
-    fileText = str()
-    with open(kitPath, "r") as file:
-        src = " ".join(["ObjectTemplate.aiTemplate", kitTemplateSrc])
-        dst = " ".join(["ObjectTemplate.aiTemplate", kitTemplateDst])
-        fileText = file.read().replace(src, dst)
-    with open(kitPath, "w") as file:
-        file.write(fileText)
+for path in file_paths:
+    file_str = str()
+    with open(path, "r") as file:
+        src = " ".join(["ObjectTemplate.aiTemplate", template_target])
+        dst = " ".join(["ObjectTemplate.aiTemplate", template_replace])
+        file_str = file.read().replace(src, dst)
+    with open(path, "w") as file:
+        file.write(file_str)

@@ -45,20 +45,19 @@ for root, dir, files, in os.walk(objectPath):
             file_paths[file_extension].add(file_path)
 
 # [2] Get created aitemplates
-for file_path in file_paths[".ai"]:
-    with open(file_path, "r") as file:
+for path in file_paths[".ai"]:
+    with open(path, "r") as file:
         for line in file:
             template_str = line.strip().split(" ")
             if template_str[0] in template_words:
                 aitemplates.add(template_str[1])
 
 # [3] See if aiTemplate in file exists
-for file_path in file_paths[".tweak"]:
-    with open(file_path, "r") as file:
+for path in file_paths[".tweak"]:
+    with open(path, "r") as file:
         for line in file:
-            if (".aiTemplate" not in line) or ("rem" in line):
-                continue
-            template = line.strip().split(" ")[-1]
-            if template not in aitemplates:
-                string = f"{file_path}\n{template}"
-                print(string)
+            if (".aiTemplate" in line) and ("rem" not in line):
+                template = line.strip().split(" ")[-1]
+                if template not in aitemplates:
+                    string = f"{path}\n{template}"
+                    print(string)

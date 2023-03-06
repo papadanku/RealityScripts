@@ -15,9 +15,9 @@ def get_folder_path(*args):
 object_path = get_folder_path("objects", "kits")
 
 # Arguments
-target_str = "riflemanat"
-template_target = "AT" 
-template_replace = "LAT"
+target_str = "spotter"
+template_target = "Assault" 
+template_replace = "Spotter"
 
 # Kit data
 file_paths = set()

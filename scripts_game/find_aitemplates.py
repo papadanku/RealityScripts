@@ -33,10 +33,10 @@ def get_folder_path(*args):
     target_path = os.path.join(repo_path, "\\".join(args))
     return os.path.abspath(target_path)
 
-objectPath = get_folder_path("objects")
+object_path = get_folder_path("objects")
 
 # [1] Get all AI and object files
-for root, dir, files, in os.walk(objectPath):
+for root, dir, files, in os.walk(object_path):
     for file_name in files:
         file_extension = os.path.splitext(file_name)[-1]
         if file_extension in file_extensions:
@@ -56,7 +56,7 @@ for path in file_paths[".ai"]:
 for path in file_paths[".tweak"]:
     with open(path, "r") as file:
         for line in file:
-            if (".aiTemplate" in line) and ("rem" not in line):
+            if (".aiTemplate" in line) and ("rem" in line):
                 template = line.strip().split(" ")[-1]
                 if template not in aitemplates:
                     string = f"{path}\n{template}"

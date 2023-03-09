@@ -4,7 +4,9 @@
 #
 
 # Import Python modules
+import fileinput
 import os
+import re
 
 # File information
 
@@ -18,12 +20,12 @@ file_paths = {
     ".tweak": set()
 }
 
-template_words = {
-    "aiTemplate.create",
-    "aiTemplatePlugin.create",
-    "kitTemplate.create",
-    "weaponTemplate.create"
-}
+template_words = "|".join([
+    "aiTemplate.create \\w+",
+    "aiTemplatePlugin.create \\w+",
+    "kitTemplate.create \\w+",
+    "weaponTemplate.create \\w+"
+    ])
 
 aitemplates = set()
 
@@ -47,17 +49,15 @@ for root, dir, files, in os.walk(object_path):
 # [2] Get created aitemplates
 for path in file_paths[".ai"]:
     with open(path, "r") as file:
-        for line in file:
-            template_str = line.strip().split(" ")
-            if template_str[0] in template_words:
-                aitemplates.add(template_str[1])
+        file_content = file.read()
+        for word in re.findall(f"({template_words})", file_content):
+            aitemplates.add(word.split()[-1])
 
 # [3] See if aiTemplate in file exists
-for path in file_paths[".tweak"]:
-    with open(path, "r") as file:
-        for line in file:
-            if (".aiTemplate" in line) and ("rem" in line):
-                template = line.strip().split(" ")[-1]
-                if template not in aitemplates:
-                    string = f"{path}\n{template}"
-                    print(string)
+with fileinput.FileInput(file_paths[".tweak"]) as input:
+    for line in input:
+        if (".aiTemplate" in line) and ("rem" not in line):
+            template = line.strip().split(" ")[-1]
+            if template not in aitemplates:
+                string = f"{input.filename()}\n{template}"
+                print(string)

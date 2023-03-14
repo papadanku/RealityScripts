@@ -32,7 +32,7 @@ for root, dir, files, in os.walk(object_path):
 
 # [2] Overwrite files
 for path in file_paths:
-    file_str = str()
+    file_str = ""
     with open(path, "r") as file:
         src = " ".join(["ObjectTemplate.aiTemplate", template_target])
         dst = " ".join(["ObjectTemplate.aiTemplate", template_replace])

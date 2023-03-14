@@ -26,8 +26,8 @@ import realitytimer as rtimer
 from realityconfig_coop import C
 
 
-g_ai_kitSlots = dict()
-g_spawnTime_cache = dict()
+g_ai_kitSlots = {}
+g_spawnTime_cache = {}
 
 
 def init():
@@ -65,7 +65,7 @@ class aiKitSlot(object):
         return True
 
     def getKitFilePaths(self, variantFile):
-        kitPaths = list()
+        kitPaths = []
         variant = self.teamName + rkits.getKitTeamVariants(self.team)
         variantLine = 'v_arg1 == "{}"'.format(variant)
         variantFound = False
@@ -106,8 +106,8 @@ class aiKitSlot(object):
             for path in self.getKitFilePaths(variantFile):
                 kitFile = archiveFile.open(path, "r")
                 try:
-                    kitName = str()
-                    kitType = str()
+                    kitName = ""
+                    kitType = ""
                     for kitLine in kitFile:
                         kitLine = str(kitLine.decode().strip())
                         if "ObjectTemplate.create Kit" in kitLine:

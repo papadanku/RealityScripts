@@ -15,7 +15,7 @@ def get_folder_path(*args):
 object_path = get_folder_path("objects", "kits")
 
 # Data
-faction_paths = list()
+faction_paths = []
 
 # [1] Get all kit files
 for root, dir, files, in os.walk(object_path):
@@ -47,8 +47,8 @@ class Kits(object):
     @staticmethod
     def unallocated(file_path):
         faction = file_path.split("\\")[-2]
-        faction_kits = dict()
-        variant = str()
+        faction_kits = {}
+        variant = ""
 
         # Get missing files
         with open(file_path, "r") as file:

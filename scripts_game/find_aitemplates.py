@@ -8,7 +8,7 @@ import os
 import re
 
 # App information
-app = {
+data = {
     "extensions": {
         ".ai",
         ".tweak"
@@ -39,24 +39,22 @@ object_path = get_folder_path("objects")
 for root, dir, files, in os.walk(object_path):
     for file_name in files:
         file_extension = os.path.splitext(file_name)[-1]
-        if file_extension in app["extensions"]:
+        if file_extension in data["extensions"]:
             dir_path = os.path.realpath(root)
             file_path = os.path.join(dir_path, file_name)
-            app["paths"][file_extension].add(file_path)
+            data["paths"][file_extension].add(file_path)
 
 # [2] Get created aitemplates
-for path in app["paths"][".ai"]:
+for path in data["paths"][".ai"]:
     with open(path, "r") as file:
-        file_content = file.read()
-        for word in re.findall(app["patterns"]["keywords"], file_content):
-            app["templates"].add(word.split()[-1])
+        for word in re.findall(data["patterns"]["keywords"], file.read()):
+            data["templates"].add(word.split()[-1])
 
 # [3] See if aiTemplate in file exists
-for object_file in app["paths"][".tweak"]:
+for object_file in data["paths"][".tweak"]:
     with open(object_file, "r") as file:
-        file_content = file.read()
-        template = re.search(app["patterns"]["template"], file_content)
+        template = re.search(data["patterns"]["template"], file.read())
         if template:
             template_str = template.group()
-            if template_str not in app["templates"]:
+            if template_str not in data["templates"]:
                 print("\n".join(["", object_file, template_str]))

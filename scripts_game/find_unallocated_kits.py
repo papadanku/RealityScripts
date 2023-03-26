@@ -5,6 +5,7 @@
 
 # Import Python modules
 import os
+import re
 
 # Get repository path
 def get_folder_path(*args):
@@ -14,8 +15,14 @@ def get_folder_path(*args):
 
 object_path = get_folder_path("objects", "kits")
 
-# Data
-faction_paths = []
+# App information
+data = {
+    "factions": [],
+    "patterns": {
+        "loaded": re.compile("(?<=ObjectTemplate\\.create\\sKit\\s)\\w+"),
+        "allocated": re.compile("(?<=ObjectTemplate.setObjectTemplate...)\\w+")
+    }
+}
 
 # [1] Get all kit files
 for root, dir, files, in os.walk(object_path):
@@ -23,26 +30,21 @@ for root, dir, files, in os.walk(object_path):
         if "variants.inc" in file_name:
             dir_path = os.path.realpath(root)
             file_path = os.path.join(dir_path, file_name)
-            faction_paths.append(file_path)
+            data["factions"].append(file_path)
 
 # Methods to get a types of kits
 class Kits(object):
     @staticmethod
-    def loaded(file_path):
+    def get_loaded(file_path):
         with open(file_path, "r") as file:
-            for line in file:
-                if line.startswith("ObjectTemplate.create"):
-                    return line.strip().split()[-1]
+            kit = re.search(data["patterns"]["loaded"], file.read())
+            if kit:
+                return kit.group()
 
     @staticmethod
-    def allocated(file_path):
-        kits_allocated = set()
+    def get_allocated(file_path):
         with open(file_path) as file:
-            for line in file:
-                if line.startswith("ObjectTemplate.setObjectTemplate"):
-                    kit = line.strip().split()[-1]
-                    kits_allocated.add(kit)
-        return kits_allocated
+            return set(re.findall(data["patterns"]["allocated"], file.read()))
 
     @staticmethod
     def unallocated(file_path):
@@ -69,9 +71,9 @@ class Kits(object):
                 if variant and faction:
                     path = os.path.join(object_path, faction, line[-1])
                     if "preload" in os.path.abspath(path):
-                        faction_kits[variant]["allocated"] = Kits.allocated(path)
+                        faction_kits[variant]["allocated"] = Kits.get_allocated(path)
                     elif "preload" not in path:
-                        faction_kits[variant]["loaded"].add(Kits.loaded(path))
+                        faction_kits[variant]["loaded"].add(Kits.get_loaded(path))
                         continue
 
             # Print missing kits within faction
@@ -83,5 +85,5 @@ class Kits(object):
                     print(f"[{variant}] has missing templates: {difference}")
 
 # [2] Get all missing templates
-for faction in faction_paths:
+for faction in data["factions"]:
     Kits.unallocated(faction)

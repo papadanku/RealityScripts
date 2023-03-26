@@ -4,30 +4,28 @@
 #
 
 # Import Python modules
-import fileinput
 import os
 import re
 
-# File information
+# App information
+app = {
+    "extensions": {
+        ".ai",
+        ".tweak"
+    },
 
-file_extensions = {
-    ".ai",
-    ".tweak"
+    "paths": {
+        ".ai": set(),
+        ".tweak": set()
+    },
+
+    "patterns": {
+        "keywords": re.compile("[ai|kit|weapon]+Template\\.create\\s\\w+"),
+        "template": re.compile("(?<=\\.aiTemplate\\s)\\w+")
+    },
+
+    "templates": set()
 }
-
-file_paths = {
-    ".ai": set(),
-    ".tweak": set()
-}
-
-template_words = "|".join([
-    "aiTemplate.create \\w+",
-    "aiTemplatePlugin.create \\w+",
-    "kitTemplate.create \\w+",
-    "weaponTemplate.create \\w+"
-    ])
-
-aitemplates = set()
 
 # Get repository path
 def get_folder_path(*args):
@@ -41,23 +39,24 @@ object_path = get_folder_path("objects")
 for root, dir, files, in os.walk(object_path):
     for file_name in files:
         file_extension = os.path.splitext(file_name)[-1]
-        if file_extension in file_extensions:
+        if file_extension in app["extensions"]:
             dir_path = os.path.realpath(root)
             file_path = os.path.join(dir_path, file_name)
-            file_paths[file_extension].add(file_path)
+            app["paths"][file_extension].add(file_path)
 
 # [2] Get created aitemplates
-for path in file_paths[".ai"]:
+for path in app["paths"][".ai"]:
     with open(path, "r") as file:
         file_content = file.read()
-        for word in re.findall(f"({template_words})", file_content):
-            aitemplates.add(word.split()[-1])
+        for word in re.findall(app["patterns"]["keywords"], file_content):
+            app["templates"].add(word.split()[-1])
 
 # [3] See if aiTemplate in file exists
-with fileinput.FileInput(file_paths[".tweak"]) as input:
-    for line in input:
-        if (".aiTemplate" in line) and ("rem" not in line):
-            template = line.strip().split(" ")[-1]
-            if template not in aitemplates:
-                string = f"{input.filename()}\n{template}"
-                print(string)
+for object_file in app["paths"][".tweak"]:
+    with open(object_file, "r") as file:
+        file_content = file.read()
+        template = re.search(app["patterns"]["template"], file_content)
+        if template:
+            template_str = template.group()
+            if template_str not in app["templates"]:
+                print("\n".join(["", object_file, template_str]))

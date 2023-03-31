@@ -20,11 +20,11 @@ data = {
     },
 
     "patterns": {
-        "keywords": re.compile("[ai|kit|weapon]+Template\\.create\\s\\w+"),
-        "template": re.compile("(?<=\\.aiTemplate\\s)\\w+")
+        "keywords": re.compile("[ai|kit|weapon]+Template[Plugin]*\\.create (\\w+)"),
+        "aitemplate": re.compile("(?<=\\.aiTemplate )\\w+")
     },
 
-    "templates": set()
+    "aitemplates": set()
 }
 
 # Get repository path
@@ -47,14 +47,14 @@ for root, dir, files, in os.walk(object_path):
 # [2] Get created aitemplates
 for path in data["paths"][".ai"]:
     with open(path, "r") as file:
-        for word in re.findall(data["patterns"]["keywords"], file.read()):
-            data["templates"].add(word.split()[-1])
+        templates = re.findall(data["patterns"]["keywords"], file.read())
+        data["aitemplates"].update(templates)
 
 # [3] See if aiTemplate in file exists
 for object_file in data["paths"][".tweak"]:
     with open(object_file, "r") as file:
-        template = re.search(data["patterns"]["template"], file.read())
+        template = re.search(data["patterns"]["aitemplate"], file.read())
         if template:
             template_str = template.group()
-            if template_str not in data["templates"]:
+            if template_str not in data["aitemplates"]:
                 print("\n".join(["", object_file, template_str]))

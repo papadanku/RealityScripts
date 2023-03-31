@@ -19,7 +19,7 @@ object_path = get_folder_path("objects", "kits")
 data = {
     "factions": [],
     "patterns": {
-        "loaded": re.compile("(?<=ObjectTemplate\\.create\\sKit\\s)\\w+"),
+        "loaded": re.compile("(?<=ObjectTemplate\\.create Kit )\\w+"),
         "allocated": re.compile("(?<=ObjectTemplate.setObjectTemplate...)\\w+")
     }
 }

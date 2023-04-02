@@ -36,9 +36,7 @@ def init():
             host.registerHandler("PlayerSpawn", onPlayerSpawn)
             host.registerGameStatusHandler(onGameStatusChanged)
         if (C["SPAWN_TIME_MODIFIER"] >= 1) and (C["BOT_DYNAMIC_RESPAWN"] == 1):
-            # Wounded, This event occurs when a player is "critically injured", but still capable of being revived.
             host.registerHandler("PlayerKilled", onPlayerKilled)
-            # Deded, This event occurs when a player is decisively dead, and cannot be revived
             host.registerHandler("PlayerDeath", onPlayerDeath)
 
 
@@ -51,12 +49,12 @@ class aiKitSlot(object):
         # Initialize kitSlot's team information
         self.team = team
         self.teamName = bf2.gameLogic.getTeamName(self.team).lower()
+        self.variant = self.teamName + rkits.getKitTeamVariants(self.team)
 
         # Initialize kitSlot's attributes
         # NOTE: self.kitTypes needs to be in this order to comply with vbf2's spawn-order
         self.kitTypes = ("specops", "sniper", "assault", "support", "engineer", "medic", "at")
         self.kits = dict.fromkeys(self.kitTypes)
-        self.soldiers = tuple()
 
     def isValidKit(self, kit):
         for excludedKit in C["EXCLUDED_KITS"]:
@@ -64,13 +62,17 @@ class aiKitSlot(object):
                 return False
         return True
 
+    # Get all variant kit filepaths
     def getKitFilePaths(self, variantFile):
         kitPaths = []
-        variant = self.teamName + rkits.getKitTeamVariants(self.team)
-        variantLine = 'v_arg1 == "{}"'.format(variant)
         variantFound = False
 
-        # Get all variant kit filepaths
+        # NOTE: This is a hack. All factions have >1 variants, so default's last
+        if self.variant == self.teamName:
+            variantLine = "else"
+        else:
+            variantLine = 'v_arg1 == "{}"'.format(self.variant)
+
         for line in variantFile:
             if variantLine in line:
                 variantFound = True
@@ -133,16 +135,6 @@ class aiKitSlot(object):
             archiveFile.close()
             variantFile.close()
 
-    # Get a list of valid kit soldiers for kitSlots
-    def getKitSoldiers(self):
-        soldierSet = set()
-        for kitIndex in range(7):
-            kitSlot = rkits.g_kits_slots[self.team][kitIndex]
-            if kitSlot is None:
-                continue
-            soldierSet.add(kitSlot.Soldier)
-        self.soldiers = tuple(soldierSet)
-
 
 def onGameStatusChanged(status):
     """
@@ -160,25 +152,20 @@ def onGameStatusChanged(status):
         for team in [1, 2]:
             g_ai_kitSlots[team] = aiKitSlot(team)
             g_ai_kitSlots[team].getKitData()
-            g_ai_kitSlots[team].getKitSoldiers()
 
 
 def onPlayerSpawn(player, soldier):
     """
     Modify AI's kit choices
     """
-
-    global g_ai_kitSlots
-
     if not player.isAIPlayer():
         return
 
-    # Fill the spawner's kitSlots with a random kit and soldier
+    # Fill the spawner's kitSlots with a random kit
     team = player.getTeam()
-    soldier = random.choice(g_ai_kitSlots[team].soldiers)
-
     for kitIndex, kitType in enumerate(g_ai_kitSlots[team].kitTypes):
         kit = random.choice(g_ai_kitSlots[team].kits[kitType])
+        soldier = rkits.g_kits_slots[team][kitIndex].Soldier
         host.rcon_invoke("gameLogic.setKit %s %s %s %s" % (team, kitIndex, kit, soldier))
 
 
@@ -225,6 +212,7 @@ def onPlayerKilled(victim, attacker, weaponObject, assists, victimSoldierObject)
     Modify spawn times based on certain conditions
     NOTE: Using setDamage on nextTick seems to also cause crashes, albeit less frequently
     NOTE: Instead, do so 1sec after event
+    TODO: Fix refire when fastSpawn() happens (fastSpawn -> dynamicSpawn)
     """
 
     try:

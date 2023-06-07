@@ -67,7 +67,7 @@ class aiKitSlot(object):
     def getKitFilePaths(self, variantFile):
         # Read content from file
         fileText = str(variantFile.read().decode())
-        fileStr = re.sub("\r\n[\t]?", " ", fileText)
+        fileStr = re.sub("\r\n\t?", " ", fileText)
 
         # Find kits based on variant
         if ("v_arg1" not in fileStr):
@@ -79,7 +79,7 @@ class aiKitSlot(object):
             kitBlock = re.search(kitPattern, fileStr).group()
             kitText = re.split("elseIf|else", kitBlock)[0]
 
-        kits = re.findall(re.compile("(\w+/\w+\.tweak)"), kitText)
+        kits = re.findall(re.compile("(\S+.tweak)"), kitText)
         return kits
 
     # Generate singleplayer kit list based on the archive

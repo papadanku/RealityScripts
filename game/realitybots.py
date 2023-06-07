@@ -105,8 +105,8 @@ class aiKitSlot(object):
                 kitFile = archiveFile.open(kitPath, "r")
                 kitText = str(kitFile.read().decode())
                 try:
-                    kitName = re.search("(?<=ObjectTemplate.create Kit )(\w+)", kitText)
-                    kitType = re.search("(?<=ObjectTemplate.kitType )(\w+)", kitText)
+                    kitName = re.search("(?<=ObjectTemplate\\.create Kit )(\w+)", kitText)
+                    kitType = re.search("(?<=ObjectTemplate\\.kitType )(\w+)", kitText)
                     if (kitName and kitType):
                         name = kitName.group()
                         type = kitType.group().lower()

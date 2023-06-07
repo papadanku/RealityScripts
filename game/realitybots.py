@@ -79,7 +79,7 @@ class aiKitSlot(object):
             kitBlock = re.search(kitPattern, fileStr).group()
             kitText = re.split("elseIf|else", kitBlock)[0]
 
-        kits = re.findall(re.compile("(\S+.tweak)"), kitText)
+        kits = re.findall(re.compile("(\S+\.tweak)"), kitText)
         return kits
 
     # Generate singleplayer kit list based on the archive
@@ -105,8 +105,8 @@ class aiKitSlot(object):
                 kitFile = archiveFile.open(kitPath, "r")
                 kitText = str(kitFile.read().decode())
                 try:
-                    kitName = re.search("(?<=ObjectTemplate\\.create Kit )(\w+)", kitText)
-                    kitType = re.search("(?<=ObjectTemplate\\.kitType )(\w+)", kitText)
+                    kitName = re.search("(?<=ObjectTemplate\.create Kit )(\w+)", kitText)
+                    kitType = re.search("(?<=ObjectTemplate\.kitType )(\w+)", kitText)
                     if (kitName and kitType):
                         name = kitName.group()
                         type = kitType.group().lower()

@@ -11,6 +11,7 @@
 import math
 import os
 import random
+import re
 import zipfile
 
 # Import bf2 modules
@@ -64,28 +65,22 @@ class aiKitSlot(object):
 
     # Get all variant kit filepaths
     def getKitFilePaths(self, variantFile):
-        kitPaths = []
-        variantFound = False
+        # Read content from file
+        fileText = str(variantFile.read().decode())
+        fileStr = re.sub("\r\n[\t]?", " ", fileText)
 
-        # NOTE: This is a hack. All factions have >1 variants, so default's last
-        if self.variant == self.teamName:
-            variantLine = "else"
+        # Find kits based on variant
+        if ("v_arg1" not in fileStr):
+            kitText = fileStr
+        elif (self.variant == self.teamName):
+            kitText = re.split("else", fileStr)[-1]
         else:
-            variantLine = 'v_arg1 == "{}"'.format(self.variant)
+            kitPattern = re.compile('(?<="%s")(.*)' % (self.variant), re.DOTALL)
+            kitBlock = re.search(kitPattern, fileStr).group()
+            kitText = re.split("elseIf|else", kitBlock)[0]
 
-        for line in variantFile:
-            if variantLine in line:
-                variantFound = True
-                continue
-            if variantFound:
-                if "run" not in line:
-                    break
-                elif "preload" not in line:
-                    line = str(line.decode().strip())
-                    path = "/".join(["kits", self.teamName, line.split()[-1]])
-                    kitPaths.append(path)
-
-        return kitPaths
+        kits = re.findall(re.compile("(\w+/\w+\.tweak)"), kitText)
+        return kits
 
     # Generate singleplayer kit list based on the archive
     def getKitData(self):
@@ -99,28 +94,25 @@ class aiKitSlot(object):
 
         try:
             # Initialize kit data
-            kitSet = set()
+            kitSum = set()
             kitDict = dict.fromkeys(self.kitTypes)
             for key in kitDict.keys():
                 kitDict.update({key: set()})
 
             # Get paths to kit files
             for path in self.getKitFilePaths(variantFile):
-                kitFile = archiveFile.open(path, "r")
+                kitPath = "/".join(["kits", self.teamName, path])
+                kitFile = archiveFile.open(kitPath, "r")
+                kitText = str(kitFile.read().decode())
                 try:
-                    kitName = ""
-                    kitType = ""
-                    for kitLine in kitFile:
-                        kitLine = str(kitLine.decode().strip())
-                        if "ObjectTemplate.create Kit" in kitLine:
-                            kitName = kitLine.split(" ")[-1]
-                        if "ObjectTemplate.kitType" in kitLine:
-                            kitType = kitLine.split(" ")[-1].lower()
-                        if (kitName and kitType) and rkits.kitExists(kitName):
-                            if self.isValidKit(kitName):
-                                kitSet.add(kitName)
-                                kitDict[kitType].add(kitName)
-                            break
+                    kitName = re.search("(?<=ObjectTemplate.create Kit )(\w+)", kitText)
+                    kitType = re.search("(?<=ObjectTemplate.kitType )(\w+)", kitText)
+                    if (kitName and kitType):
+                        name = kitName.group()
+                        type = kitType.group().lower()
+                        if rkits.kitExists(name) and self.isValidKit(name):
+                            kitSum.add(name)
+                            kitDict[type].add(name)
                 finally:
                     kitFile.close()
 
@@ -130,7 +122,7 @@ class aiKitSlot(object):
                 if value:
                     self.kits.update({key: tuple(value)})
                 else:
-                    self.kits.update({key: tuple(kitSet)})
+                    self.kits.update({key: tuple(kitSum)})
         finally:
             archiveFile.close()
             variantFile.close()

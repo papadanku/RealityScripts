@@ -66,17 +66,16 @@ class aiKitSlot(object):
     # Get all variant kit filepaths
     def getKitFilePaths(self, variantFile):
         # Read content from file
-        fileText = str(variantFile.read().decode())
-        fileStr = re.sub("\r\n\t?", " ", fileText)
+        fileText = str(variantFile.read().decode().strip())
 
         # Find kits based on variant
-        if ("v_arg1" not in fileStr):
-            kitText = fileStr
+        if ("v_arg1" not in fileText):
+            kitText = fileText
         elif (self.variant == self.teamName):
-            kitText = re.split("else", fileStr)[-1]
+            kitText = re.split("else", fileText)[-1]
         else:
             kitPattern = re.compile('(?<="%s")(.*)' % (self.variant), re.DOTALL)
-            kitBlock = re.search(kitPattern, fileStr).group()
+            kitBlock = re.search(kitPattern, fileText).group()
             kitText = re.split("elseIf|else", kitBlock)[0]
 
         kits = re.findall(re.compile("(\S+\.tweak)"), kitText)

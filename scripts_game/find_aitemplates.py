@@ -20,8 +20,8 @@ data = {
     },
 
     "patterns": {
-        "keywords": re.compile("[ai|kit|weapon]+Template[Plugin]*\\.create (\\w+)"),
-        "aitemplate": re.compile("(?<=\\.aiTemplate )\\w+")
+        "keywords": re.compile('(?:ai|kit|weapon)Template(?:Plugin)?\.create (\w+)'),
+        "aitemplate": re.compile('(?<=\.aiTemplate )(\w+)')
     },
 
     "aitemplates": set()

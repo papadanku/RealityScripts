@@ -56,6 +56,8 @@ class aiKitSlot(object):
         # NOTE: self.kitTypes needs to be in this order to comply with vbf2's spawn-order
         self.kitTypes = ("specops", "sniper", "assault", "support", "engineer", "medic", "at")
         self.kits = dict.fromkeys(self.kitTypes)
+        for key in self.kits.keys():
+            self.kits.update({key: set()})
 
     def isValidKit(self, kit):
         for excludedKit in C["EXCLUDED_KITS"]:
@@ -70,15 +72,14 @@ class aiKitSlot(object):
 
         # Find kits based on variant
         if ("v_arg1" not in fileText):
-            kitText = fileText
+            kitPattern = re.compile('(.*)', re.DOTALL)
         elif (self.variant == self.teamName):
-            kitText = re.split("else", fileText)[-1]
+            kitPattern = re.compile('(?<="else")(.*?)(?=endIf)', re.DOTALL)
         else:
-            kitPattern = re.compile('(?<="%s")(.*)' % (self.variant), re.DOTALL)
-            kitBlock = re.search(kitPattern, fileText).group()
-            kitText = re.split("elseIf|else", kitBlock)[0]
+            kitPattern = re.compile('(?<="%s")(.*?)(?=elseIf|else|endIf)' % (self.variant), re.DOTALL)
 
-        kits = re.findall(re.compile("(\S+\.tweak)"), kitText)
+        kitBlock = re.search(kitPattern, fileText).group()
+        kits = re.findall(re.compile("(\S+\.tweak)"), kitBlock)
         return kits
 
     # Generate singleplayer kit list based on the archive
@@ -92,11 +93,8 @@ class aiKitSlot(object):
         variantFile = archiveFile.open(variantPath, "r")
 
         try:
-            # Initialize kit data
+            # Initialize kit sum
             kitSum = set()
-            kitDict = dict.fromkeys(self.kitTypes)
-            for key in kitDict.keys():
-                kitDict.update({key: set()})
 
             # Get paths to kit files
             for path in self.getKitFilePaths(variantFile):
@@ -111,13 +109,13 @@ class aiKitSlot(object):
                         type = kitType.group().lower()
                         if rkits.kitExists(name) and self.isValidKit(name):
                             kitSum.add(name)
-                            kitDict[type].add(name)
+                            self.kits[type].add(name)
                 finally:
                     kitFile.close()
 
             # Process kit choices into tuples, add as object attributes
             # NOTE: Empty kitSlots get random kits
-            for key, value in kitDict.items():
+            for key, value in self.kits.items():
                 if value:
                     self.kits.update({key: tuple(value)})
                 else:

@@ -7,33 +7,25 @@
 import os
 import re
 
+# Import shared modules
+from shared import repo
+
 # App information
 data = {
-    "extensions": {
-        ".ai",
-        ".tweak"
-    },
-
+    "aitemplates": set(),
+    "extensions": { ".ai", ".tweak" },
     "paths": {
         ".ai": set(),
         ".tweak": set()
     },
-
     "patterns": {
         "keywords": re.compile('(?:ai|kit|weapon)Template(?:Plugin)?\.create (\w+)'),
         "aitemplate": re.compile('(?<=\.aiTemplate )(\w+)')
     },
-
-    "aitemplates": set()
 }
 
 # Get repository path
-def get_folder_path(*args):
-    repo_path = input("Input repository path: ")
-    target_path = os.path.join(repo_path, "\\".join(args))
-    return os.path.abspath(target_path)
-
-object_path = get_folder_path("objects")
+object_path = repo.get_dir("objects")
 
 # [1] Get all AI and object files
 for root, dir, files, in os.walk(object_path):
@@ -54,7 +46,9 @@ for path in data["paths"][".ai"]:
 for object_file in data["paths"][".tweak"]:
     with open(object_file, "r") as file:
         template = re.search(data["patterns"]["aitemplate"], file.read())
-        if template:
+        if not template:
+            continue
+        else:
             template_str = template.group()
             if template_str not in data["aitemplates"]:
                 print("\n".join(["", object_file, template_str]))

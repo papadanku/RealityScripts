@@ -5,15 +5,9 @@
 
 # Import Python modules
 import re
-import os
 
-# Get repository path
-def get_folder_path(*args):
-    repo_path = input("Input repository path: ")
-    target_path = os.path.join(repo_path, "\\".join(args))
-    return os.path.abspath(target_path)
-
-object_path = get_folder_path("objects", "weapons", "Handheld")
+# Import shared modules
+from shared import repo
 
 # App data
 data = {
@@ -22,13 +16,11 @@ data = {
     "aitemplate_str": "ObjectTemplate.aiTemplate"
 }
 
+# Get repository path
+object_path = repo.get_dir("objects", "weapons", "Handheld")
+
 # [1] Get all weapon configuration files
-for root, dir, files, in os.walk(object_path):
-    for file_name in files:
-        if file_name.endswith(".tweak"):
-            dir_path = os.path.realpath(root)
-            file_path = os.path.join(dir_path, file_name)
-            data["file_paths"].add(file_path)
+data["file_paths"] = repo.get_files(object_path, {".tweak"})
 
 # [2] Process specific weapon files
 for path in data["file_paths"]:

@@ -7,13 +7,8 @@
 import os
 import re
 
-# Get repository path
-def get_folder_path(*args):
-    repo_path = input("Input repository path: ")
-    target_path = os.path.join(repo_path, "\\".join(args))
-    return os.path.abspath(target_path)
-
-object_path = get_folder_path("objects", "kits")
+# Import shared modules
+from shared import repo
 
 # App information
 data = {
@@ -24,13 +19,11 @@ data = {
     }
 }
 
+# Get repository path
+object_path = repo.get_dir("objects", "kits")
+
 # [1] Get all kit files
-for root, dir, files, in os.walk(object_path):
-    for file_name in files:
-        if "variants.inc" in file_name:
-            dir_path = os.path.realpath(root)
-            file_path = os.path.join(dir_path, file_name)
-            data["factions"].append(file_path)
+data["factions"] = repo.get_files(object_path, {"variants.inc"})
 
 # Methods to get a types of kits
 class Kits(object):

@@ -4,26 +4,32 @@
 #
 
 # Import shared modules
-from shared import repo
+from shared import Repo
 
-# Get repository path
-object_path = repo.get_dir("objects", "kits")
+class ReplaceKitTemplates(object):
 
-# [1] Get all kit files
-file_paths = repo.get_files(object_path, {".tweak"})
+    def __init__(self):
+        self.object_path = ""
+        self.file_paths = set()
+        self.target_string = input("Insert kit files to target (e.g. spotter): ")
+        self.template_target = input("Insert target kitTemplate (e.g. Assault): ")
+        self.template_replace = input("Insert replacement kitTemplate (e.g. Spotter): ")
 
-# Arguments
-target_str = "spotter"
-template_target = "Assault" 
-template_replace = "Spotter"
+    def __call__(self):
+        self.object_path = Repo.get_dir("objects", "kits")
+        self.file_paths = Repo.get_files(self.object_path, ".tweak")
+        self.overwrite_templates()
 
-# [2] Overwrite files
-for path in file_paths:
-    if (target_str in path):
-        file_str = ""
-        with open(path, "r") as file:
-            src = f"ObjectTemplate.aiTemplate {template_target}"
-            dest = f"ObjectTemplate.aiTemplate {template_replace}"
-            file_str = file.read().replace(src, dest)
-        with open(path, "w") as file:
-            file.write(file_str)
+    def overwrite_templates(self):
+        for path in self.file_paths:
+            if (self.target_string in path):
+                file_str = ""
+                with open(path, "r") as file:
+                    src = f"ObjectTemplate.aiTemplate {self.template_target}"
+                    dest = f"ObjectTemplate.aiTemplate {self.template_replace}"
+                    file_str = file.read().replace(src, dest)
+                with open(path, "w") as file:
+                    file.write(file_str)
+
+app = ReplaceKitTemplates()
+app()

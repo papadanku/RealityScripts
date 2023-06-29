@@ -8,47 +8,50 @@ import os
 import re
 
 # Import shared modules
-from shared import repo
+from shared import Repo
 
-# App information
-data = {
-    "aitemplates": set(),
-    "extensions": { ".ai", ".tweak" },
-    "paths": {
-        ".ai": set(),
-        ".tweak": set()
-    },
-    "patterns": {
-        "keywords": re.compile('(?:ai|kit|weapon)Template(?:Plugin)?\.create (\w+)'),
-        "aitemplate": re.compile('(?<=\.aiTemplate )(\w+)')
-    },
-}
+class FindAITemplates(object):
 
-# Get repository path
-object_path = repo.get_dir("objects")
+    def __init__(self):
+        self.object_path = ""
+        self.extensions = { ".ai", ".tweak" }
+        self.file_paths = { ".ai": set(), ".tweak": set() }
+        self.ai_templates = set()
 
-# [1] Get all AI and object files
-for root, dir, files, in os.walk(object_path):
-    for file_name in files:
-        file_extension = os.path.splitext(file_name)[-1]
-        if file_extension in data["extensions"]:
-            dir_path = os.path.realpath(root)
-            file_path = os.path.join(dir_path, file_name)
-            data["paths"][file_extension].add(file_path)
+    def __call__(self):
+        self.object_path = Repo.get_dir("objects")
+        self.get_files()
+        self.get_templates()
+        self.check_templates()
 
-# [2] Get created aitemplates
-for path in data["paths"][".ai"]:
-    with open(path, "r") as file:
-        templates = re.findall(data["patterns"]["keywords"], file.read())
-        data["aitemplates"].update(templates)
+    def get_files(self):
+        for root, dir, files, in os.walk(self.object_path):
+            for file_name in files:
+                file_extension = os.path.splitext(file_name)[-1]
+                if file_extension in self.extensions:
+                    dir_path = os.path.realpath(root)
+                    file_path = os.path.join(dir_path, file_name)
+                    self.file_paths[file_extension].add(file_path)
 
-# [3] See if aiTemplate in file exists
-for object_file in data["paths"][".tweak"]:
-    with open(object_file, "r") as file:
-        template = re.search(data["patterns"]["aitemplate"], file.read())
-        if not template:
-            continue
-        else:
-            template_str = template.group()
-            if template_str not in data["aitemplates"]:
-                print("\n".join(["", object_file, template_str]))
+    def get_templates(self):
+        pattern = re.compile('(?:ai|kit|weapon)Template(?:Plugin)?\.create (\w+)')
+        for path in self.file_paths[".ai"]:
+            with open(path, "r") as file:
+                templates = re.findall(pattern, file.read())
+                self.ai_templates.update(templates)
+
+    def check_templates(self):
+        pattern = re.compile('(?<=\.aiTemplate )(\w+)')
+        for object_file in self.file_paths[".tweak"]:
+            with open(object_file, "r") as file:
+                template = re.search(pattern, file.read())
+                if not template:
+                    continue
+                else:
+                    template_str = template.group()
+                    if template_str not in self.ai_templates:
+                        print("\n".join(["", object_file, template_str]))
+
+
+app = FindAITemplates()
+app()

@@ -1,7 +1,7 @@
 
 import os
 
-class repo(object):
+class Repo(object):
 
     @staticmethod
     def get_dir(*args):
@@ -10,7 +10,7 @@ class repo(object):
         return os.path.abspath(target_path)
 
     @staticmethod
-    def get_files(path: str, included_string: set) -> set:
+    def get_files(path: str, included_string: str) -> set:
         paths = set()
         for root, dir, files, in os.walk(path):
             for file_name in files:

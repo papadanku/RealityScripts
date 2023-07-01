@@ -14,7 +14,6 @@ class FindAITemplates(object):
 
     def __init__(self):
         self.object_path = ""
-        self.extensions = { ".ai", ".tweak" }
         self.file_paths = { ".ai": set(), ".tweak": set() }
         self.ai_templates = set()
 
@@ -25,29 +24,28 @@ class FindAITemplates(object):
         self.check_templates()
 
     def get_files(self):
+        EXTENSIONS = { ".ai", ".tweak" }
         for root, dir, files, in os.walk(self.object_path):
             for file_name in files:
                 file_extension = os.path.splitext(file_name)[-1]
-                if file_extension in self.extensions:
+                if file_extension in EXTENSIONS:
                     dir_path = os.path.realpath(root)
                     file_path = os.path.join(dir_path, file_name)
                     self.file_paths[file_extension].add(file_path)
 
     def get_templates(self):
-        pattern = re.compile('(?:ai|kit|weapon)Template(?:Plugin)?\.create (\w+)')
+        PATTERN = re.compile('(?:ai|kit|weapon)Template(?:Plugin)?\.create (\w+)')
         for path in self.file_paths[".ai"]:
             with open(path, "r") as file:
-                templates = re.findall(pattern, file.read())
+                templates = re.findall(PATTERN, file.read())
                 self.ai_templates.update(templates)
 
     def check_templates(self):
-        pattern = re.compile('(?<=\.aiTemplate )(\w+)')
+        PATTERN = re.compile('(?<=\.aiTemplate )(\w+)')
         for object_file in self.file_paths[".tweak"]:
             with open(object_file, "r") as file:
-                template = re.search(pattern, file.read())
-                if not template:
-                    continue
-                else:
+                template = re.search(PATTERN, file.read())
+                if template:
                     template_str = template.group()
                     if template_str not in self.ai_templates:
                         print("\n".join(["", object_file, template_str]))

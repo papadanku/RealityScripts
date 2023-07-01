@@ -45,6 +45,8 @@ class aiKitSlot(object):
     """
     Setup an AI team's kitSlot attributes
     """
+    # NOTE: KIT_TYPES needs to be in this order to comply with vbf2's spawn-order
+    KIT_TYPES = ("specops", "sniper", "assault", "support", "engineer", "medic", "at")
 
     def __init__(self, team):
         # Initialize kitSlot's team information
@@ -53,9 +55,7 @@ class aiKitSlot(object):
         self.variant = self.teamName + rkits.getKitTeamVariants(self.team)
 
         # Initialize kitSlot's attributes
-        # NOTE: self.kitTypes needs to be in this order to comply with vbf2's spawn-order
-        self.kitTypes = ("specops", "sniper", "assault", "support", "engineer", "medic", "at")
-        self.kits = dict.fromkeys(self.kitTypes)
+        self.kits = dict.fromkeys(self.KIT_TYPES)
         for key in self.kits.keys():
             self.kits.update({key: set()})
 
@@ -152,10 +152,10 @@ def onPlayerSpawn(player, soldier):
 
     # Fill the spawner's kitSlots with a random kit
     team = player.getTeam()
-    for kitIndex, kitType in enumerate(g_ai_kitSlots[team].kitTypes):
+    for index, kitType in enumerate(g_ai_kitSlots[team].KIT_TYPES):
         kit = random.choice(g_ai_kitSlots[team].kits[kitType])
-        soldier = rkits.g_kits_slots[team][kitIndex].Soldier
-        host.rcon_invoke("gameLogic.setKit %s %s %s %s" % (team, kitIndex, kit, soldier))
+        soldier = rkits.g_kits_slots[team][index].Soldier
+        host.rcon_invoke("gameLogic.setKit %s %s %s %s" % (team, index, kit, soldier))
 
 
 class aiSpawner(object):

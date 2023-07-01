@@ -18,18 +18,20 @@ class ReplaceKitTemplates(object):
     def __call__(self):
         self.object_path = Repo.get_dir("objects", "kits")
         self.file_paths = Repo.get_files(self.object_path, ".tweak")
-        self.overwrite_templates()
+        self.replace_templates()
 
-    def overwrite_templates(self):
+    def replace_templates(self):
+        TARGET = f"ObjectTemplate.aiTemplate {self.template_target}"
+        REPLACE = f"ObjectTemplate.aiTemplate {self.template_replace}"
+
         for path in self.file_paths:
             if (self.target_string in path):
                 file_str = ""
                 with open(path, "r") as file:
-                    src = f"ObjectTemplate.aiTemplate {self.template_target}"
-                    dest = f"ObjectTemplate.aiTemplate {self.template_replace}"
-                    file_str = file.read().replace(src, dest)
+                    file_str = file.read().replace(TARGET, REPLACE)
                 with open(path, "w") as file:
                     file.write(file_str)
+
 
 app = ReplaceKitTemplates()
 app()

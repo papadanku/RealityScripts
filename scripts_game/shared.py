@@ -14,8 +14,6 @@ class Repo(object):
         paths = set()
         for root, dir, files, in os.walk(path):
             for file_name in files:
-                if included_string in os.path.splitext(file_name)[-1]:
-                    dir_path = os.path.realpath(root)
-                    file_path = os.path.join(dir_path, file_name)
-                    paths.add(file_path)
+                if included_string in file_name:
+                    paths.add(os.path.join(root, file_name))
         return paths

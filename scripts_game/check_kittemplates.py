@@ -21,7 +21,7 @@ class CheckKitTemplates(object):
     def __init__(self):
         self.object_path = ""
         self.file_paths = set()
-    
+
     def __call__(self):
         """
         Fetches kit variant files in the give repository

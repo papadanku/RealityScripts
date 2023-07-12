@@ -41,14 +41,19 @@ class FindAITemplates(object):
                 self.ai_templates.update(templates)
 
     def check_templates(self):
-        PATTERN = re.compile('(?<=\.aiTemplate )(\w+)')
+        PATTERN_REM = re.compile('rem ObjectTemplate\.aiTemplate')
+        PATTERN_CATCH = re.compile('(?<=\.aiTemplate )(\w+)')
         for object_file in self.file_paths[".tweak"]:
             with open(object_file, "r") as file:
-                template = re.search(PATTERN, file.read())
-                if template:
-                    template_str = template.group()
-                    if template_str not in self.ai_templates:
-                        print("\n".join(["", object_file, template_str]))
+                text = file.read()
+                rem_template = re.search(PATTERN_REM, text)
+                template = re.search(PATTERN_CATCH, text)
+                # Continue if we are not calling an enabled "ObjectTemplate.aiTemplate"
+                if rem_template or (template is None):
+                    continue
+                template_string = template.group()
+                if template_string not in self.ai_templates:
+                    print("\n".join(["", object_file, template_string]))
 
 
 app = FindAITemplates()

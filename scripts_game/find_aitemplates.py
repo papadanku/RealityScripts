@@ -45,11 +45,8 @@ class FindAITemplates(object):
         PATTERN_CATCH = re.compile('(?<=\.aiTemplate )(\w+)')
         for object_file in self.file_paths[".tweak"]:
             with open(object_file, "r") as file:
-                text = file.read()
-                rem_template = re.search(PATTERN_REM, text)
-                template = re.search(PATTERN_CATCH, text)
-                # Continue if we are not calling an enabled "ObjectTemplate.aiTemplate"
-                if rem_template or (template is None):
+                template = re.search(PATTERN_CATCH, file.read())
+                if template is None:
                     continue
                 template_string = template.group()
                 if template_string not in self.ai_templates:

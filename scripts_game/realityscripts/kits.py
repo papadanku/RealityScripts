@@ -8,7 +8,7 @@ import os
 import re
 
 # Import shared modules
-import shared
+from realityscripts import shared
 
 class CheckKitTemplates(shared.Application):
 

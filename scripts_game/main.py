@@ -7,7 +7,6 @@ Author: [R-DEV]papadanku
 # Import shared modules
 from realityscripts import ai
 from realityscripts import kits
-from realityscripts import weapons
 
 def main():
     try:
@@ -15,9 +14,13 @@ def main():
     except:
         print("Not a valid path")
     
-    app = ai.FindAITemplates(path)
-    app = kits.CheckKitTemplates(path)
-    app = weapons.ReplaceWeaponTemplates(path)
+    console = """
+    Do you want to:
+        [1]: Find AI Templates
+        [2]: Check Kit Templates
+    """
+    user_input = input(console)
+    print(user_input)
 
 
 if __name__ == "__main__":

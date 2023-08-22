@@ -15,7 +15,6 @@ class CheckKitTemplates(shared.Application):
     def __init__(self, path: str):
         super().__init__(path, "objects", "kits")
         self.file_paths = set()
-        self.kits = set()
     
     def __call__(self):
         # Accumulate variants found from the repo

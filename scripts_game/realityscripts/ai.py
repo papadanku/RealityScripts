@@ -19,7 +19,7 @@ class FindAITemplates(shared.Application):
         self.ai = set()
 
     def __call__(self):
-        super().get_files()
+        super().get_files(self.extensions)
         self.get_ai()
         self.check_ai()
 

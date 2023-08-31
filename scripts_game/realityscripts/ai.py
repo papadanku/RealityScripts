@@ -7,7 +7,7 @@ Library to process .ai files
 import re
 
 # Import shared modules
-from realityscripts import shared
+import shared
 
 class FindAITemplates(shared.Application):
 

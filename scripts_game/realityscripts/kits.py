@@ -8,13 +8,13 @@ import os
 import re
 
 # Import shared modules
-from realityscripts import shared
+import shared
 
 class CheckKitTemplates(shared.Application):
 
     def __init__(self, path: str):
         super().__init__(path, "objects", "kits")
-        self.file_paths = set()
+        self.file_paths = []
     
     def __call__(self):
         # Accumulate variants found from the repo
@@ -23,7 +23,7 @@ class CheckKitTemplates(shared.Application):
                 if file == "variants.inc":
                     dir_path = os.path.realpath(root)
                     file_path = os.path.join(dir_path, file)
-                    self.file_paths.add(file_path)
+                    self.file_paths.append(file_path)
         # Evaluate the fetched variants
         for path in self.file_paths:
             self.search_variants(path)
@@ -46,17 +46,17 @@ class CheckKitTemplates(shared.Application):
         k_allocated = set()
 
         # Allocate kits from the variant runs and preloaded
-        PATTERN_ALLOCATED = re.compile('(?:ObjectTemplate\.setObjectTemplate \d) (\w+)')
-        PATTERN__LOADED = re.compile('(?:ObjectTemplate.create Kit) (\w+)')
+        PATTERN_ALLOCATED = re.compile('ObjectTemplate\.setObjectTemplate \d (\w+)')
+        PATTERN_LOADED = re.compile('ObjectTemplate\.create Kit (\w+)')
         for path in re.findall('run (.*?\.tweak)', kits):
             file_path = os.path.join(self.path, faction, path)
             with open(file_path, "r") as file:
                 if "preload" in path:
                     kits = re.findall(PATTERN_ALLOCATED, file.read())
-                    k_loaded.update(kits)
-                else:
-                    kits = re.findall(PATTERN__LOADED, file.read())
                     k_allocated.update(kits)
+                else:
+                    kits = re.findall(PATTERN_LOADED, file.read())
+                    k_loaded.update(kits)
 
         # Calculate the differences between the two
         k_missing = k_loaded - k_allocated
@@ -64,3 +64,4 @@ class CheckKitTemplates(shared.Application):
             print(f'{variant}: no missing kits')
         else:
             print(f'{variant}: {k_missing}')
+

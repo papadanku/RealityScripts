@@ -45,14 +45,14 @@ class aiKitSlot(object):
     """
     Setup an AI team's kitSlot attributes
     """
+
     # NOTE: KIT_TYPES needs to be in this order to comply with vbf2's spawn-order
     KIT_TYPES = ("specops", "sniper", "assault", "support", "engineer", "medic", "at")
 
     def __init__(self, team):
         # Initialize kitSlot's team information
-        self.team = team
-        self.teamName = bf2.gameLogic.getTeamName(self.team).lower()
-        self.variant = self.teamName + rkits.getKitTeamVariants(self.team)
+        self.faction = bf2.gameLogic.getTeamName(team).lower()
+        self.variant = self.faction + rkits.getKitTeamVariants(team)
 
         # Initialize kitSlot's attributes
         self.kits = dict.fromkeys(self.KIT_TYPES)
@@ -71,9 +71,9 @@ class aiKitSlot(object):
         fileText = str(variantFile.read().decode().strip())
 
         # Find kits based on variant
-        if ("v_arg1" not in fileText):
-            kitPattern = re.compile('(.*)', re.DOTALL)
-        elif (self.variant == self.teamName):
+        if "v_arg1" not in fileText:
+            kitPattern = re.compile("(.*)", re.DOTALL)
+        elif self.variant == self.faction:
             kitPattern = re.compile('(?<="else")(.*?)(?=endIf)', re.DOTALL)
         else:
             kitPattern = re.compile('(?<="%s")(.*?)(?=elseIf|else|endIf)' % (self.variant), re.DOTALL)
@@ -89,29 +89,26 @@ class aiKitSlot(object):
         archiveFile = zipfile.ZipFile(archivePath, "r")
 
         # Variant data
-        variantPath = "/".join(["kits", self.teamName, "variants.inc"])
+        variantPath = "/".join(["kits", self.faction, "variants.inc"])
         variantFile = archiveFile.open(variantPath, "r")
 
+        # Get paths to kit files
         try:
-            # Initialize kit sum
             kitSum = set()
-
-            # Get paths to kit files
             for path in self.getKitFilePaths(variantFile):
-                kitPath = "/".join(["kits", self.teamName, path])
+                kitPath = "/".join(["kits", self.faction, path])
                 kitFile = archiveFile.open(kitPath, "r")
                 kitText = str(kitFile.read().decode())
                 try:
-                    kitName = re.search("(?<=ObjectTemplate\.create Kit )(\w+)", kitText)
-                    kitType = re.search("(?<=ObjectTemplate\.kitType )(\w+)", kitText)
-                    if (kitName and kitType):
-                        name = kitName.group()
-                        type = kitType.group().lower()
-                        if rkits.kitExists(name) and self.isValidKit(name):
-                            kitSum.add(name)
-                            self.kits[type].add(name)
-                finally:
+                    kitName = re.search("(?<=ObjectTemplate\.create Kit )(\w+)", kitText).group()
+                    kitType = re.search("(?<=ObjectTemplate\.kitType )(\w+)", kitText).group().lower()
+                    if rkits.kitExists(kitName) and self.isValidKit(kitName):
+                        kitSum.add(kitName)
+                        self.kits[kitType].add(kitName)
                     kitFile.close()
+                except:
+                    kitFile.close()
+                    continue
 
             # Process kit choices into tuples, add as object attributes
             # NOTE: Empty kitSlots get random kits
@@ -196,6 +193,7 @@ class aiSpawner(object):
 
         victim.setTimeToSpawn(spawnTime)
 
+
 def onPlayerKilled(victim, attacker, weaponObject, assists, victimSoldierObject):
     """
     Modify spawn times based on certain conditions
@@ -228,7 +226,7 @@ def onPlayerKilled(victim, attacker, weaponObject, assists, victimSoldierObject)
             return
         elif any(playerEvents["fast"]):
             rtimer.fireOnce(aiSpawner.fastRespawn, 1, victim)
-        else: # PlayerEnemyKilled
+        else:  # PlayerEnemyKilled
             rtimer.fireOnce(aiSpawner.dynamicRespawn, 1, victim)
     except:
         pass

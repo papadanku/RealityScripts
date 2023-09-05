@@ -19,8 +19,6 @@ def main():
         [1]: Find AI Templates
         [2]: Check Kit Templates
     """
-    user_input = input(console)
-    print(user_input)
 
 
 if __name__ == "__main__":

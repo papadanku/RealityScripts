@@ -203,31 +203,11 @@ def onPlayerKilled(victim, attacker, weaponObject, assists, victimSoldierObject)
     """
 
     try:
-        playerEvents = {
-            # Do not set spawn time if: The victim is non-AI, invalid attacker/victim
-            "invalid": [
-                not victim.isAIPlayer(),
-                not victim,
-                not victim.isValid(),
-                victim is None,
-                attacker is None,
-                victim.isValid() is False,
-                attacker.isValid() is False,
-            ],
-            # Set fast spawn-time for: victimless death, suicide, or teamkill
-            "fast": [
-                not attacker,
-                attacker is victim,
-                attacker.getTeam() == victim.getTeam(),
-            ],
-        }
-
-        if any(playerEvents["invalid"]):
-            return
-        elif any(playerEvents["fast"]):
-            rtimer.fireOnce(aiSpawner.fastRespawn, 1, victim)
-        else:  # PlayerEnemyKilled
-            rtimer.fireOnce(aiSpawner.dynamicRespawn, 1, victim)
+        if victim.isValid() and victim.isAIPlayer():
+            if (not attacker) or (attacker is victim):
+                rtimer.fireOnce(aiSpawner.fastRespawn, 1, victim)
+            elif attacker.getTeam() != victim.getTeam():  # PlayerEnemyKilled
+                rtimer.fireOnce(aiSpawner.dynamicRespawn, 1, victim)
     except:
         pass
 

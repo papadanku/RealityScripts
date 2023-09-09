@@ -38,7 +38,6 @@ def init():
             host.registerGameStatusHandler(onGameStatusChanged)
         if (C["SPAWN_TIME_MODIFIER"] >= 1) and (C["BOT_DYNAMIC_RESPAWN"] == 1):
             host.registerHandler("PlayerKilled", onPlayerKilled)
-            host.registerHandler("PlayerDeath", onPlayerDeath)
 
 
 class aiKitSlot(object):
@@ -76,7 +75,9 @@ class aiKitSlot(object):
         elif self.variant == self.faction:
             kitPattern = re.compile('(?<="else")(.*?)(?=endIf)', re.DOTALL)
         else:
-            kitPattern = re.compile('(?<="%s")(.*?)(?=elseIf|else|endIf)' % (self.variant), re.DOTALL)
+            kitPattern = re.compile(
+                '(?<="%s")(.*?)(?=elseIf|else|endIf)' % (self.variant), re.DOTALL
+            )
 
         kitBlock = re.search(kitPattern, fileText).group()
         kits = re.findall(re.compile("(\S+\.tweak)"), kitBlock)
@@ -85,7 +86,9 @@ class aiKitSlot(object):
     # Generate singleplayer kit list based on the archive
     def getKitData(self):
         # Archive data
-        archivePath = os.path.join(host.sgl_getModDirectory(), "content", "objects_common_server.zip")
+        archivePath = os.path.join(
+            host.sgl_getModDirectory(), "content", "objects_common_server.zip"
+        )
         archiveFile = zipfile.ZipFile(archivePath, "r")
 
         # Variant data
@@ -100,8 +103,14 @@ class aiKitSlot(object):
                 kitFile = archiveFile.open(kitPath, "r")
                 kitText = str(kitFile.read().decode())
                 try:
-                    kitName = re.search("(?<=ObjectTemplate\.create Kit )(\w+)", kitText).group()
-                    kitType = re.search("(?<=ObjectTemplate\.kitType )(\w+)", kitText).group().lower()
+                    kitName = re.search(
+                        "(?<=ObjectTemplate\.create Kit )(\w+)", kitText
+                    ).group()
+                    kitType = (
+                        re.search("(?<=ObjectTemplate\.kitType )(\w+)", kitText)
+                        .group()
+                        .lower()
+                    )
                     if rkits.kitExists(kitName) and self.isValidKit(kitName):
                         kitSum.add(kitName)
                         self.kits[kitType].add(kitName)
@@ -120,6 +129,7 @@ class aiKitSlot(object):
         finally:
             archiveFile.close()
             variantFile.close()
+        return
 
 
 def onGameStatusChanged(status):
@@ -130,29 +140,31 @@ def onGameStatusChanged(status):
     global g_ai_kitSlots
     global g_spawnTime_cache
 
+    # Get each team's kitSlot data
     if status == bf2.GameStatus.Playing:
         g_ai_kitSlots.clear()
         g_spawnTime_cache.clear()
-
-        # Get each team's kitSlot data
         for team in [1, 2]:
             g_ai_kitSlots[team] = aiKitSlot(team)
             g_ai_kitSlots[team].getKitData()
+    return
 
 
 def onPlayerSpawn(player, soldier):
     """
     Modify AI's kit choices
     """
-    if not player.isAIPlayer():
-        return
-
-    # Fill the spawner's kitSlots with a random kit
-    team = player.getTeam()
-    for index, kitType in enumerate(g_ai_kitSlots[team].KIT_TYPES):
-        kit = random.choice(g_ai_kitSlots[team].kits[kitType])
-        soldier = rkits.g_kits_slots[team][index].Soldier
-        host.rcon_invoke("gameLogic.setKit %s %s %s %s" % (team, index, kit, soldier))
+    if player.isAIPlayer():
+        team = player.getTeam()
+        for index, kitType in enumerate(g_ai_kitSlots[team].KIT_TYPES):
+            kit = random.choice(g_ai_kitSlots[team].kits[kitType])
+            soldier = rkits.g_kits_slots[team][index].Soldier
+            host.rcon_invoke(
+                "gameLogic.setKit %s %s %s %s" % (team, index, kit, soldier)
+            )
+    else:
+        pass
+    return
 
 
 class aiSpawner(object):
@@ -164,10 +176,12 @@ class aiSpawner(object):
 
     @staticmethod
     def fastRespawn(victim):
-        soldier = victim.getDefaultVehicle()
-        if soldier:
-            soldier.setDamage(0)
+        try:
+            victim.getDefaultVehicle().setDamage(0)
             victim.setTimeToSpawn(0)
+        except:
+            pass
+        return
 
     @staticmethod
     def dynamicRespawn(victim):
@@ -192,6 +206,7 @@ class aiSpawner(object):
             g_spawnTime_cache[functionArgs] = spawnTime
 
         victim.setTimeToSpawn(spawnTime)
+        return
 
 
 def onPlayerKilled(victim, attacker, weaponObject, assists, victimSoldierObject):
@@ -199,29 +214,16 @@ def onPlayerKilled(victim, attacker, weaponObject, assists, victimSoldierObject)
     Modify spawn times based on certain conditions
     NOTE: Using setDamage on nextTick seems to also cause crashes, albeit less frequently
     NOTE: Instead, do so 1sec after event
-    TODO: Fix refire when fastSpawn() happens (fastSpawn -> dynamicSpawn)
     """
 
     try:
         if victim.isValid() and victim.isAIPlayer():
-            if (not attacker) or (attacker is victim) or (attacker.getTeam() == victim.getTeam()):
+            if not attacker:
+                rtimer.fireOnce(aiSpawner.fastRespawn, 1, victim)
+            elif (attacker == victim) or (attacker.getTeam() == victim.getTeam()):
                 rtimer.fireOnce(aiSpawner.fastRespawn, 1, victim)
             elif attacker.getTeam() != victim.getTeam():  # PlayerEnemyKilled
                 rtimer.fireOnce(aiSpawner.dynamicRespawn, 1, victim)
     except:
         pass
-
-
-def onPlayerDeath(victim, soldier):
-    """
-    Dead bot: Respawn time is dynamic respawn time
-    """
-
-    try:
-        if victim is None:
-            return
-        else:
-            if victim.isAIPlayer():
-                rtimer.fireOnce(aiSpawner.dynamicRespawn, 1, victim)
-    except:
-        pass
+    return

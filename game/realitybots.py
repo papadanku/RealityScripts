@@ -204,7 +204,7 @@ def onPlayerKilled(victim, attacker, weaponObject, assists, victimSoldierObject)
 
     try:
         if victim.isValid() and victim.isAIPlayer():
-            if (not attacker) or (attacker is victim):
+            if (not attacker) or (attacker is victim) or (attacker.getTeam() == victim.getTeam()):
                 rtimer.fireOnce(aiSpawner.fastRespawn, 1, victim)
             elif attacker.getTeam() != victim.getTeam():  # PlayerEnemyKilled
                 rtimer.fireOnce(aiSpawner.dynamicRespawn, 1, victim)

@@ -75,9 +75,7 @@ class aiKitSlot(object):
         elif self.variant == self.faction:
             kitPattern = re.compile('(?<="else")(.*?)(?=endIf)', re.DOTALL)
         else:
-            kitPattern = re.compile(
-                '(?<="%s")(.*?)(?=elseIf|else|endIf)' % (self.variant), re.DOTALL
-            )
+            kitPattern = re.compile('(?<="%s")(.*?)(?=elseIf|else|endIf)' % (self.variant), re.DOTALL)
 
         kitBlock = re.search(kitPattern, fileText).group()
         kits = re.findall(re.compile("(\S+\.tweak)"), kitBlock)
@@ -86,9 +84,7 @@ class aiKitSlot(object):
     # Generate singleplayer kit list based on the archive
     def getKitData(self):
         # Archive data
-        archivePath = os.path.join(
-            host.sgl_getModDirectory(), "content", "objects_common_server.zip"
-        )
+        archivePath = os.path.join(host.sgl_getModDirectory(), "content", "objects_common_server.zip")
         archiveFile = zipfile.ZipFile(archivePath, "r")
 
         # Variant data
@@ -103,14 +99,8 @@ class aiKitSlot(object):
                 kitFile = archiveFile.open(kitPath, "r")
                 kitText = str(kitFile.read().decode())
                 try:
-                    kitName = re.search(
-                        "(?<=ObjectTemplate\.create Kit )(\w+)", kitText
-                    ).group()
-                    kitType = (
-                        re.search("(?<=ObjectTemplate\.kitType )(\w+)", kitText)
-                        .group()
-                        .lower()
-                    )
+                    kitName = re.search("(?<=ObjectTemplate\.create Kit )(\w+)", kitText).group()
+                    kitType = re.search("(?<=ObjectTemplate\.kitType )(\w+)", kitText).group().lower()
                     if rkits.kitExists(kitName) and self.isValidKit(kitName):
                         kitSum.add(kitName)
                         self.kits[kitType].add(kitName)
@@ -159,9 +149,7 @@ def onPlayerSpawn(player, soldier):
         for index, kitType in enumerate(g_ai_kitSlots[team].KIT_TYPES):
             kit = random.choice(g_ai_kitSlots[team].kits[kitType])
             soldier = rkits.g_kits_slots[team][index].Soldier
-            host.rcon_invoke(
-                "gameLogic.setKit %s %s %s %s" % (team, index, kit, soldier)
-            )
+            host.rcon_invoke("gameLogic.setKit %s %s %s %s" % (team, index, kit, soldier))
     else:
         pass
     return

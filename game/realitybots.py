@@ -28,7 +28,7 @@ from realityconfig_coop import C
 
 
 g_ai_kitSlots = {}
-g_spawnTime_cache = {}
+g_spawnTime = {}
 
 
 def init():
@@ -38,6 +38,7 @@ def init():
             host.registerGameStatusHandler(onGameStatusChanged)
         if (C["SPAWN_TIME_MODIFIER"] >= 1) and (C["BOT_DYNAMIC_RESPAWN"] == 1):
             host.registerHandler("PlayerKilled", onPlayerKilled)
+            host.registerHandler("PlayerDeath", onPlayerDeath)
 
 
 class aiKitSlot(object):
@@ -128,12 +129,12 @@ def onGameStatusChanged(status):
     """
 
     global g_ai_kitSlots
-    global g_spawnTime_cache
+    global g_spawnTime
 
     # Get each team's kitSlot data
     if status == bf2.GameStatus.Playing:
         g_ai_kitSlots.clear()
-        g_spawnTime_cache.clear()
+        g_spawnTime.clear()
         for team in [1, 2]:
             g_ai_kitSlots[team] = aiKitSlot(team)
             g_ai_kitSlots[team].getKitData()
@@ -160,40 +161,27 @@ class aiSpawner(object):
     Modify spawn time depending on team ratio
     """
 
-    global g_spawnTime_cache
+    global g_spawnTime
 
     @staticmethod
-    def fastRespawn(victim):
-        try:
-            victim.getDefaultVehicle().setDamage(0)
-            victim.setTimeToSpawn(0)
-        except:
-            pass
+    def fastRespawn(victimName):
+        g_spawnTime.update({victimName: 0})
         return
 
     @staticmethod
-    def dynamicRespawn(victim):
-        # Clear cache if it is larger than a certain size
-        if len(g_spawnTime_cache) > 256:
-            g_spawnTime_cache.clear()
-
+    def dynamicRespawn(victimName):
         # teamOne = AI; teamTwo = Human
         teamOneCount = bf2.playerManager.getNumberOfPlayersInTeam(1)
         teamTwoCount = bf2.playerManager.getNumberOfPlayersInTeam(2)
-        functionArgs = str(teamOneCount + teamTwoCount)
 
-        if functionArgs in g_spawnTime_cache:
-            spawnTime = g_spawnTime_cache[functionArgs]
-        else:
-            # Round to nearest 10th; minimum player count of 5
-            teamTwoCount = max(round(teamTwoCount, -1), 5)
-            # Make minimum possible respawn time 30 seconds
-            countRatio = teamOneCount / teamTwoCount
-            spawnTime = min(30, math.ceil(countRatio * C["SPAWN_TIME_MODIFIER"]))
-            # Cache results
-            g_spawnTime_cache[functionArgs] = spawnTime
+        # Round to nearest 10th; minimum player count of 5
+        teamTwoCount = max(round(teamTwoCount, -1), 5)
+        # Make minimum possible respawn time 30 seconds
+        countRatio = teamOneCount / teamTwoCount
+        spawnTime = min(30, math.ceil(countRatio * C["SPAWN_TIME_MODIFIER"]))
 
-        victim.setTimeToSpawn(spawnTime)
+        # Cache results
+        g_spawnTime.update({victimName: spawnTime})
         return
 
 
@@ -206,12 +194,28 @@ def onPlayerKilled(victim, attacker, weaponObject, assists, victimSoldierObject)
 
     try:
         if victim.isValid() and victim.isAIPlayer():
+            victimName = victim.getName()
             if not attacker:
-                rtimer.fireOnce(aiSpawner.fastRespawn, 1, victim)
+                rtimer.fireOnce(aiSpawner.fastRespawn, 1, victimName)
             elif (attacker == victim) or (attacker.getTeam() == victim.getTeam()):
-                rtimer.fireOnce(aiSpawner.fastRespawn, 1, victim)
+                rtimer.fireOnce(aiSpawner.fastRespawn, 1, victimName)
             elif attacker.getTeam() != victim.getTeam():  # PlayerEnemyKilled
-                rtimer.fireOnce(aiSpawner.dynamicRespawn, 1, victim)
+                rtimer.fireOnce(aiSpawner.dynamicRespawn, 1, victimName)
     except:
         pass
     return
+
+
+def onPlayerDeath(victim, soldier):
+    """
+    Dead bot: Respawn time is dynamic respawn time
+    """
+
+    global g_spawnTime
+
+    try:
+        if victim.isAIPlayer():
+            victim.setTimeToSpawn(g_spawnTime[victim.getName()])
+    except:
+        host.rcon_invoke("echo %s" % ("Error on dynamic spawn!"))
+        pass

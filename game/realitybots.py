@@ -217,5 +217,5 @@ def onPlayerDeath(victim, soldier):
         if victim.isAIPlayer():
             victim.setTimeToSpawn(g_spawnTime[victim.getName()])
     except:
-        host.rcon_invoke("echo %s" % ("Error on dynamic spawn!"))
         pass
+    return

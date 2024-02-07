@@ -1,14 +1,18 @@
-
 import os
+from typing import Any
+
 
 class Application(object):
 
-    def __init__(self, path: str, *args):
-        self.path = os.path.abspath(os.path.join(path, args))
-        self.file_paths = { }
+    def __init__(self, repo_path, dir):
+        self.path = os.path.abspath(os.path.join(repo_path, dir))
+        self.file_paths = {}
 
-    def get_files(self, extensions: set):
-        for root, _, files, in os.walk(self.path):
+    def __call__(self):
+        pass
+
+    def get_files(self, extensions):
+        for root, _, files in os.walk(self.path):
             for file in files:
                 extension = os.path.splitext(file)[-1]
                 if extension in extensions:

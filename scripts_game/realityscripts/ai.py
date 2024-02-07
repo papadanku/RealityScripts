@@ -6,12 +6,13 @@ Library to process .ai files
 import re
 
 # Import shared modules
-import shared
+from realityscripts import shared
 
 
 class FindAITemplates(shared.Application):
-    def __init__(self, path: str):
-        super().__init__(path, "objects")
+
+    def __init__(self, repo_path):
+        super().__init__(repo_path, "objects")
         self.extensions = {".ai", ".tweak"}
         for extension in self.extensions:
             self.file_paths[extension] = set()
@@ -19,19 +20,19 @@ class FindAITemplates(shared.Application):
 
     def __call__(self):
         super().get_files(self.extensions)
-        self.get_ai()
-        self.check_ai()
+        self.get_ai_templates()
+        self.check_ai_templates()
 
-    def get_ai(self):
+    def get_ai_templates(self):
         # Fetch all created aiTemplates from the repo
-        pattern = re.compile("(?:ai|kit|weapon)Template(?:Plugin)?\.create (\w+)")
+        pattern = re.compile(r'(?:ai|kit|weapon)Template(?:Plugin)?\.create (\w+)')
         for path in self.file_paths[".ai"]:
             with open(path, "r") as file:
                 self.ai.update(re.findall(pattern, file.read()))
 
-    def check_ai(self):
+    def check_ai_templates(self):
         # Check if the aiTemplate exists in the repo
-        pattern = re.compile("(?<=\.aiTemplate )(\w+)")
+        pattern = re.compile(r'(?<=\.aiTemplate )(\w+)')
         for object_file in self.file_paths[".tweak"]:
             with open(object_file, "r") as file:
                 try:

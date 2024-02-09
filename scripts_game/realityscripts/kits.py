@@ -3,6 +3,7 @@ Library to process objects
 """
 
 # Import Python modules
+import glob
 import os
 import re
 
@@ -17,14 +18,10 @@ class CheckKitTemplates(shared.Application):
         self.file_paths = []
 
     def __call__(self):
-        # Accumulate variants found from the repo
-        for root, _, files in os.walk(self.path):
-            for file in files:
-                if file == "variants.inc":
-                    dir_path = os.path.realpath(root)
-                    file_path = os.path.join(dir_path, file)
-                    self.file_paths.append(file_path)
-        # Evaluate the fetched variants
+        """
+        Accumulate and evaluate variants found from the repo
+        """
+        self.file_paths = glob.glob("/".join([self.path, "*", "variants.inc"]))
         for path in self.file_paths:
             self.search_variants(path)
         print("Finished processing objects")

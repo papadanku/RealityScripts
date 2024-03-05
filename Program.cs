@@ -9,7 +9,6 @@ class Program
         return Console.ReadLine().Trim();
     }
 
-
     /// <summary>
     /// Main function for selecting applications
     /// </summary>

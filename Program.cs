@@ -26,10 +26,11 @@ class Program
         string[] menuOptions =
         [
             "",
-            "0: AI",
-            "1: Kits",
-            "2: Shaders",
+            "0: Check for Missing AI Templates",
+            "1: Check for Missing Allocated Kits",
+            "2: Print All Shader Techniques"
         ];
+
         string prompt = string.Join("\n\t", menuOptions);
 
         // Application selection loop

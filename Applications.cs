@@ -184,13 +184,13 @@ class Kits : Application
 
         // Compare the loaded and allocated kits
         IEnumerable<string> missingKits = loadedKits.Except(allocatedKits);
-        if (!missingKits.Any())
+        if (missingKits.Any())
         {
-            Console.WriteLine($"{variant}: No missing kits");
+            Console.WriteLine($"{variant}:\n\t{string.Join($"\n\t", missingKits)}");
         }
         else
         {
-            Console.WriteLine($"{variant}:\n\t{string.Join($"\n\t", missingKits)}");
+            Console.WriteLine($"{variant}: No missing kits");
         }
     }
 }

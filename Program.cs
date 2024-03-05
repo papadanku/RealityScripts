@@ -3,6 +3,16 @@ using System.Text;
 
 class Program
 {
+    static private string GetRepoPath()
+    {
+        Console.WriteLine("Please enter your repository's path: ");
+        return Console.ReadLine().Trim();
+    }
+
+
+    /// <summary>
+    /// Main function for selecting applications
+    /// </summary>
     static private void SelectApplication(string path)
     {
         // Create the new apps
@@ -15,41 +25,47 @@ class Program
 
         // Create menu options
         string[] menuOptions =
-        {
+        [
             "",
             "0: AI",
             "1: Kits",
             "2: Shaders",
-        };
+        ];
+        string prompt = string.Join("\n\t", menuOptions);
 
-        StringBuilder prompt = new();
-        prompt.AppendLine("Here are the following apps:");
-        prompt.AppendJoin("\n\t", menuOptions);
-
-        // Prompt the user to select a directory
-        Console.WriteLine(prompt);
-
-        // Allow the user to choose between N options
-        int choice;
-        do
+        // Application selection loop
+        while (true)
         {
-            Console.WriteLine("Enter your choice: ");
-            string? response = Console.ReadLine();
-            choice = int.Parse(response);
-        } while (!(choice >= 0 && choice < apps.Length));
+            // Allow the user to choose between N options
+            int choice = -1;
+            string? userResponse;
 
-        // Execute the chosen app
-        apps[choice].Execute();
+            // Turn userResponse into a number
+            while (choice < 0 || choice > apps.Length)
+            {
+                // List the available choices
+                Console.WriteLine($"Choose your Application:\n{prompt}");
+
+                // Get user's choice
+                userResponse = Console.ReadLine().ToLower().Trim();
+                choice = int.Parse(userResponse);
+            }
+
+            // Execute the selected application
+            apps[choice].Execute();
+
+            // Prompt the user if they are done with the application
+            Console.WriteLine(@"Do you want to stop using the application? Press ""y"" if so.");
+            userResponse = Console.ReadLine().ToLower().Trim();
+            if (userResponse == "y")
+            {
+                break;
+            }
+        }
 
         // Keep the app alive
         Console.WriteLine("Press enter to exit the app.");
-        string endApp = Console.ReadLine();
-    }
-
-    static private string GetRepoPath()
-    {
-        Console.WriteLine("Please enter your repository's path: ");
-        return Console.ReadLine().Trim();
+        string exit = Console.ReadLine();
     }
 
     static void Main()

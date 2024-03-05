@@ -5,6 +5,7 @@ using System.Text.RegularExpressions;
 abstract class Application(string path)
 {
     public string RepoPath = path;
+
     public abstract void Execute();
 }
 
@@ -218,7 +219,7 @@ class Shaders : Application
             if (techniques.Count != 0)
             {
                 Console.WriteLine(path);
-                foreach(Match technique in techniques)
+                foreach (Match technique in techniques)
                 {
                     Console.WriteLine($"\t{technique.Value}");
                 }

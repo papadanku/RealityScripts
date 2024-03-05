@@ -29,42 +29,43 @@ class AI(string path) : Application(path)
     private void GetDirectories()
     {
         // Build available options
-        StringBuilder prompt = new();
-        string[] options =
+        string[] menuOptions =
         [
-            "1: Vehicles",
-            "2: Weapons",
-            "3: Objects",
-            "4: Kits"
+            "0: Vehicles",
+            "1: Weapons",
+            "2: Objects",
+            "3: Kits"
         ];
 
-        // Prompt the user to select a directory to scan apps
-        prompt.AppendLine("Check AI Templates for:");
-        prompt.AppendJoin("\n", options);
-        Console.WriteLine(prompt);
+        string prompt = string.Join("\n", menuOptions);
 
         // Allow the user to choose between N options
-        int choice;
-        do
+        int choice = -1;
+        string? userResponse;
+
+        while (choice < 0 || choice > menuOptions.Length)
         {
-            Console.WriteLine("Enter your choice: ");
-            string? response = Console.ReadLine();
-            choice = int.Parse(response);
-        } while (!(choice >= 0 && choice < options.Length));
+            // List the available choices
+            Console.WriteLine($"Choose your Application:\n{prompt}");
+
+            // Get user's choice
+            userResponse = Console.ReadLine().ToLower().Trim();
+            choice = int.Parse(userResponse);
+        }
 
         switch (choice)
         {
-            case 1:
+            case 0:
                 _searchDirectories.Add("vehicles");
                 break;
-            case 2:
+            case 1:
                 _searchDirectories.Add("weapons");
                 break;
-            case 3:
+            case 2:
                 _searchDirectories.Add("staticobjects");
                 _searchDirectories.Add("dynamicobjects");
                 break;
-            case 4:
+            case 3:
                 _searchDirectories.Add("kits");
                 break;
         }

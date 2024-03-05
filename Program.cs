@@ -3,7 +3,7 @@ using System.Text;
 
 class Program
 {
-    static private void PrintMenuPrompt(string path)
+    static private void SelectApplication(string path)
     {
         // Create the new apps
         Application[] apps =
@@ -23,7 +23,7 @@ class Program
         };
 
         StringBuilder prompt = new();
-        prompt.Append("Welcome to RealityScipts!\nHere are the following apps:");
+        prompt.AppendLine("Here are the following apps:");
         prompt.AppendJoin("\n\t", menuOptions);
 
         // Prompt the user to select a directory
@@ -46,8 +46,20 @@ class Program
         string endApp = Console.ReadLine();
     }
 
+    static private string GetRepoPath()
+    {
+        Console.WriteLine("Please enter your repository's path: ");
+        return Console.ReadLine().Trim();
+    }
+
     static void Main()
     {
-        PrintMenuPrompt(@"D:\Program Files (x86)\Project Reality\Project Reality BF2\mods\pr_repo");
+        Console.WriteLine("Welcome to RealityScipts!");
+
+        // Get Project Reality's repo path
+        string RepoPath = GetRepoPath();
+
+        // Undergo application selection
+        SelectApplication(RepoPath);
     }
 }

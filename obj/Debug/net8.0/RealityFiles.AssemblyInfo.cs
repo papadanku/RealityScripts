@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("RealityFiles")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+3a7d497f415b68d089e663f09d1c6e03507bf1ec")]
 [assembly: System.Reflection.AssemblyProductAttribute("RealityFiles")]
 [assembly: System.Reflection.AssemblyTitleAttribute("RealityFiles")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

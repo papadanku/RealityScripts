@@ -11,20 +11,12 @@ abstract class Application(string path)
 /// <summary>
 /// Application for processing AI templates
 /// </summary>
-class AI : Application
+class AI(string path) : Application(path)
 {
-    private List<string> _searchDirectories;
-    private List<string> _aiFilePaths;
-    private List<string> _tweakFilePaths;
-    private HashSet<string> _aiTemplates;
-
-    public AI(string path) : base(path)
-    {
-        _searchDirectories = [];
-        _aiFilePaths = [];
-        _tweakFilePaths = [];
-        _aiTemplates = [];
-    }
+    private readonly List<string> _searchDirectories = [];
+    private readonly List<string> _aiFilePaths = [];
+    private readonly List<string> _tweakFilePaths = [];
+    private readonly HashSet<string> _aiTemplates = [];
 
     public override void Execute()
     {
@@ -111,11 +103,11 @@ class AI : Application
         foreach (string path in _tweakFilePaths)
         {
             string fileText = File.ReadAllText(path);
-            MatchCollection templates = Regex.Matches(fileText,@"(?:\w+\.aiTemplate )(\w+)", RegexOptions.Compiled);
+            MatchCollection templates = Regex.Matches(fileText, @"(?<=\.aiTemplate )\w+", RegexOptions.Compiled);
 
             foreach (Match template in templates)
             {
-                string aiTemplate = template.Groups[1].ToString();
+                string aiTemplate = template.Value;
                 if (!_aiTemplates.Contains(aiTemplate))
                 {
                     Console.WriteLine($"\n{template} has missing template!\n\t{path}");
@@ -130,7 +122,7 @@ class AI : Application
 /// </summary>
 class Kits : Application
 {
-    private string[] _variantFilePaths = [];
+    private readonly string[] _variantFilePaths = [];
 
     public Kits(string path) : base(path)
     {
@@ -156,7 +148,7 @@ class Kits : Application
         }
     }
 
-    private void CheckTemplates(string factionDirectory, Match match)
+    private static void CheckTemplates(string factionDirectory, Match match)
     {
         // Convert match groups to strings
         string faction = Path.GetFileName(factionDirectory);
@@ -169,22 +161,22 @@ class Kits : Application
         HashSet<string> allocatedKits = [];
 
         // Allocate kits from the variant runs and preloaded
-        MatchCollection kits = Regex.Matches(kitFiles, @"(?<=run )([\w\/]+\.tweak)");
+        MatchCollection kits = Regex.Matches(kitFiles, @"(?<=run )[\w\/]+\.tweak");
         foreach (Match kit in kits)
         {
-            string kitTweakFilePath = Path.Combine(factionDirectory, kit.Groups[1].ToString());
+            string kitTweakFilePath = Path.Combine(factionDirectory, kit.Value);
             string kitTweakFileText = File.ReadAllText(kitTweakFilePath);
             MatchCollection matches;
 
             if (kitTweakFilePath.Contains("preload"))
             {
                 matches = Regex.Matches(kitTweakFileText, @"(?<=ObjectTemplate\.setObjectTemplate \d )\w+");
-                allocatedKits.UnionWith(matches.Cast<Match>().Select(match => match.Value).ToHashSet());
+                allocatedKits.UnionWith(matches.Select(match => match.Value).ToHashSet());
             }
             else
             {
                 matches = Regex.Matches(kitTweakFileText, @"(?<=ObjectTemplate\.create Kit )\w+");
-                loadedKits.UnionWith(matches.Cast<Match>().Select(match => match.Value).ToHashSet());
+                loadedKits.UnionWith(matches.Select(match => match.Value).ToHashSet());
             }
         }
 
@@ -206,7 +198,7 @@ class Kits : Application
 /// </summary>
 class Shaders : Application
 {
-    private string[] _variantFilePaths;
+    private readonly string[] _variantFilePaths;
 
     public Shaders(string path) : base(path)
     {

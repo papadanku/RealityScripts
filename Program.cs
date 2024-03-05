@@ -1,5 +1,4 @@
 ﻿
-using System.Collections;
 using System.Text;
 
 class Program
@@ -11,7 +10,7 @@ class Program
         [
             new AI(path),
             new Kits(path),
-            new Shaders(path)
+            new Shaders(path),
         ];
 
         // Create menu options
@@ -20,7 +19,7 @@ class Program
             "",
             "0: AI",
             "1: Kits",
-            "2: Shaders"
+            "2: Shaders",
         };
 
         StringBuilder prompt = new();

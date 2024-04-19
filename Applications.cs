@@ -1,12 +1,35 @@
 
+using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
 
 abstract class Application(string path)
 {
     public string RepoPath = path;
-
     public abstract void Execute();
+
+    static public int GetChoiceIndex(Dictionary<int, string> options, string initialPrompt)
+    {
+        StringBuilder prompt = new();
+        prompt.AppendLine(initialPrompt);
+
+        foreach (KeyValuePair<int, string> option in options)
+        {
+            prompt.AppendLine($"[{option.Key}] {option.Value}");
+        }
+        Console.WriteLine(prompt);
+
+        // Allow the user to choose between N options
+        int choice;
+        do
+        {
+            Console.WriteLine("Enter your choice: ");
+            string? response = Console.ReadLine();
+            choice = int.Parse(response);
+        } while (!(choice >= 0 && choice < options.Count));
+
+        return choice;
+    }
 }
 
 /// <summary>
@@ -29,43 +52,28 @@ class AI(string path) : Application(path)
     private void GetDirectories()
     {
         // Build available options
-        string[] menuOptions =
-        [
-            "0: Vehicles",
-            "1: Weapons",
-            "2: Objects",
-            "3: Kits"
-        ];
-
-        string prompt = string.Join("\n", menuOptions);
-
-        // Allow the user to choose between N options
-        int choice = -1;
-        string? userResponse;
-
-        while (choice < 0 || choice > menuOptions.Length)
+        Dictionary<int, string> options = new()
         {
-            // List the available choices
-            Console.WriteLine($"Choose your Application:\n{prompt}");
+            {1, "Vehicles"},
+            {2, "Weapons"},
+            {3, "Objects"},
+            {4, "Kits"}
+        };
 
-            // Get user's choice
-            userResponse = Console.ReadLine().ToLower().Trim();
-            choice = int.Parse(userResponse);
-        }
-
-        switch (choice)
+        int appChoice = GetChoiceIndex(options, "Check AI Templates for:");
+        switch (appChoice)
         {
-            case 0:
+            case 1:
                 _searchDirectories.Add("vehicles");
                 break;
-            case 1:
+            case 2:
                 _searchDirectories.Add("weapons");
                 break;
-            case 2:
+            case 3:
                 _searchDirectories.Add("staticobjects");
                 _searchDirectories.Add("dynamicobjects");
                 break;
-            case 3:
+            case 4:
                 _searchDirectories.Add("kits");
                 break;
         }
@@ -226,5 +234,97 @@ class Shaders : Application
                 }
             }
         }
+    }
+}
+
+class FileManager(string path) : Application(path)
+{
+    public override void Execute()
+    {
+        Console.WriteLine("Enter output file directory: ");
+        string fileDirectory = Console.ReadLine();
+
+        Console.WriteLine("Enter output file name: ");
+        string fileName = Console.ReadLine();
+
+        string outputFilePath = Path.Combine(fileDirectory, $"{fileName}.txt");
+
+        HashSet<string>[] fileExtensions =
+        [
+            [".ogg", ".wav"]
+        ];
+
+        // Create menu options
+        Dictionary<int, string> menuOptions = new()
+        {
+            { 0, "Audio Files" }
+        };
+
+        int appChoice = GetChoiceIndex(menuOptions, "Check Duplicate Files for:");
+
+        FindDuplicateFiles(RepoPath, fileExtensions[appChoice], outputFilePath);
+    }
+
+    static private string GetFileHash(string filePath)
+    {
+        // Initialize SHA256 filestream
+        using FileStream fileStream = File.OpenRead(filePath);
+        using SHA256 sha256 = SHA256.Create();
+
+        // Compute SHA256 hash
+        byte[] hashBytes = sha256.ComputeHash(fileStream);
+
+        // Convert the hash bytes to a hexadecimal string
+        StringBuilder stringBuilder = new StringBuilder();
+        foreach (byte b in hashBytes)
+        {
+            stringBuilder.Append(b.ToString("x2"));
+        }
+
+        // Assign the hexadecimal hash string
+        return stringBuilder.ToString();
+    }
+
+    public static void FindDuplicateFiles(string directoryPath, HashSet<string> extensions, string outputFilePath)
+    {
+        // This dictionary stores hashes and audio file paths associated with the hash
+        Dictionary<string, List<string>> fileMap = [];
+
+        // Use Directory.EnumerateFiles to efficiently retrieve and filter files
+        Console.WriteLine("Gathering files...");
+        IEnumerable<string> files = Directory.EnumerateFiles(directoryPath, "*", SearchOption.AllDirectories)
+        .Where(file => extensions.Contains(Path.GetExtension(file).ToLowerInvariant()));
+
+        Console.WriteLine("Computing file hashes...");
+        foreach (string filePath in files)
+        {
+            // Create AudioFile object
+            string fileHash = GetFileHash(filePath);
+
+            // Append AudioFile in list
+            if (fileMap.TryGetValue(fileHash, out List<string>? value))
+            {
+                value.Add(filePath);
+            }
+            else
+            {
+                fileMap[fileHash] = [filePath];
+            }
+        }
+
+        Console.WriteLine("Computing duplicate...");
+        using (StreamWriter streamWriter = new StreamWriter(outputFilePath))
+        {
+            foreach (var fileHashDict in fileMap)
+            {
+                if (fileHashDict.Value.Count > 1)
+                {
+                    string duplicateFiles = string.Join("\n", fileHashDict.Value);
+                    streamWriter.WriteLine($"\nDuplicate files with hash {fileHashDict.Key}:\n{duplicateFiles}\n");
+                }
+            }
+        }
+
+        Console.WriteLine($"Text has been written to {outputFilePath}");
     }
 }

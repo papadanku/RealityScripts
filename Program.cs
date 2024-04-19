@@ -8,21 +8,21 @@ class Program
     static private void PrintMenuPrompt(string path)
     {
         // Create the new apps
-        Application[] apps =
-        [
-            new AI(path),
-            new Kits(path),
-            new Shaders(path),
-            new FileManager(path)
-        ];
+        Dictionary<int, Application> apps = new()
+        {
+            { 1, new AI(path) },
+            { 2, new Kits(path) },
+            { 3, new Shaders(path) },
+            { 4, new FileManager(path) },
+        };
 
         // Create menu options
         Dictionary<int, string> menuOptions = new()
         {
-            { 0, "AI" },
-            { 1, "Kits" },
-            { 2, "Shaders" },
-            { 3, "FileManager" }
+            { 1, "AI" },
+            { 2, "Check Pre-Allocated Kits" },
+            { 3, "Display Shader Techniques" },
+            { 4, "FileManager" }
         };
 
         int appChoice = Application.GetChoiceIndex(menuOptions, "Welcome to RealityScipts!\nSelect the following apps:");

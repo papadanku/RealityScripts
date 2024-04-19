@@ -26,7 +26,7 @@ abstract class Application(string path)
             Console.WriteLine("Enter your choice: ");
             string? response = Console.ReadLine();
             choice = int.Parse(response);
-        } while (!(choice >= 0 && choice < options.Count));
+        } while (!options.ContainsKey(choice));
 
         return choice;
     }
@@ -249,19 +249,20 @@ class FileManager(string path) : Application(path)
 
         string outputFilePath = Path.Combine(fileDirectory, $"{fileName}.txt");
 
-        HashSet<string>[] fileExtensions =
-        [
-            [".ogg", ".wav"]
-        ];
+        Dictionary<int, HashSet<string>> fileExtensions = new()
+        {
+            { 1, [".ogg", ".wav"] },
+            { 2, [".con", ".tweak"] }
+        };
 
         // Create menu options
         Dictionary<int, string> menuOptions = new()
         {
-            { 0, "Audio Files" }
+            { 1, "Audio Files" },
+            { 2, "Configuration Files" }
         };
 
         int appChoice = GetChoiceIndex(menuOptions, "Check Duplicate Files for:");
-
         FindDuplicateFiles(RepoPath, fileExtensions[appChoice], outputFilePath);
     }
 

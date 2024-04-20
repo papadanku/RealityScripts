@@ -33,7 +33,7 @@ abstract class Application(string path)
 }
 
 /// <summary>
-/// Application for processing AI templates
+/// Application for processing AI templates.
 /// </summary>
 class AI(string path) : Application(path)
 {
@@ -129,7 +129,7 @@ class AI(string path) : Application(path)
 }
 
 /// <summary>
-/// Application for processing kit templates
+/// Application for processing kit templates.
 /// </summary>
 class Kits : Application
 {
@@ -207,7 +207,7 @@ class Kits : Application
 }
 
 /// <summary>
-/// Application for processing shader files
+/// Application for processing shader files.
 /// </summary>
 class Shaders : Application
 {
@@ -273,11 +273,13 @@ class FileManager(string path) : Application(path)
         FindDuplicateFiles(RepoPath, fileExtensions[appChoice], outputFilePath);
     }
 
+    /// <summary>
+    /// Get the hash of a given file.
+    /// </summary>
     static private string GetFileHash(string filePath)
     {
         // Initialize SHA256 filestream
         using FileStream fileStream = File.OpenRead(filePath);
-        StringBuilder stringBuilder = new();
 
         // Compute the fileStream's hash value
         byte[] fileHash = SHA256.HashData(fileStream);
@@ -296,6 +298,7 @@ class FileManager(string path) : Application(path)
         IEnumerable<string> files = Directory.EnumerateFiles(directoryPath, "*", SearchOption.AllDirectories)
         .Where(file => extensions.Contains(Path.GetExtension(file).ToLowerInvariant()));
 
+        // Compute and organize file hashes for each filePath
         Console.WriteLine("Computing file hashes...");
         foreach (string filePath in files)
         {
@@ -314,7 +317,7 @@ class FileManager(string path) : Application(path)
         }
 
         Console.WriteLine("Computing duplicate...");
-        using (StreamWriter streamWriter = new StreamWriter(outputFilePath))
+        using (StreamWriter streamWriter = new(outputFilePath))
         {
             foreach (var fileHashDict in fileMap)
             {

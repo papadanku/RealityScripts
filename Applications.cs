@@ -279,14 +279,11 @@ class FileManager(string path) : Application(path)
         using FileStream fileStream = File.OpenRead(filePath);
         StringBuilder stringBuilder = new();
 
-        // Convert the hash bytes to a hexadecimal string
-        foreach (byte b in SHA256.HashData(fileStream))
-        {
-            stringBuilder.Append(b.ToString("x2"));
-        }
+        // Compute the fileStream's hash value
+        byte[] fileHash = SHA256.HashData(fileStream);
 
-        // Assign the hexadecimal hash string
-        return stringBuilder.ToString();
+        // Convert the fileStream's hash value to a string
+        return BitConverter.ToString(fileHash).Replace("-", "");
     }
 
     public static void FindDuplicateFiles(string directoryPath, HashSet<string> extensions, string outputFilePath)

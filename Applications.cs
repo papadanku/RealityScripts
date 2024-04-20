@@ -282,7 +282,7 @@ class FileManager(string path) : Application(path)
         using FileStream fileStream = File.OpenRead(filePath);
 
         // Compute the fileStream's hash value
-        byte[] fileHash = SHA256.HashData(fileStream);
+        byte[] fileHash = MD5.HashData(fileStream);
 
         // Convert the fileStream's hash value to a string
         return BitConverter.ToString(fileHash).Replace("-", "");

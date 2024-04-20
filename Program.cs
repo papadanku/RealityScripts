@@ -25,18 +25,20 @@ class Program
             { 4, "FileManager" }
         };
 
-        int appChoice = Application.GetChoiceIndex(menuOptions, "Welcome to RealityScipts!\nSelect the following apps:");
+        int appChoice = Application.GetChoiceIndex(menuOptions, "\nWelcome to RealityScipts!\n\nSelect the following apps:");
 
         // Execute the chosen app
         apps[appChoice].Execute();
 
         // Keep the app alive
-        Console.WriteLine("Press enter to exit the app.");
+        Console.Write("Press enter to exit the app.");
         Console.ReadLine();
     }
 
     static void Main()
     {
-        PrintMenuPrompt(@"D:\Program Files (x86)\Project Reality\Project Reality BF2\mods\pr_repo");
+        Console.Write("Enter repository directory path: ");
+        string repoDirPath = Console.ReadLine();
+        PrintMenuPrompt(repoDirPath);
     }
 }

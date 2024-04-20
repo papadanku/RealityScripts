@@ -23,7 +23,7 @@ abstract class Application(string path)
         int choice;
         do
         {
-            Console.WriteLine("Enter your choice: ");
+            Console.Write("Enter your choice: ");
             string? response = Console.ReadLine();
             choice = int.Parse(response);
         } while (!options.ContainsKey(choice));
@@ -44,6 +44,7 @@ class AI(string path) : Application(path)
 
     public override void Execute()
     {
+        Console.WriteLine("\nStarting application...\n");
         GetDirectories();
         GetTemplates();
         CheckTemplates();
@@ -54,13 +55,13 @@ class AI(string path) : Application(path)
         // Build available options
         Dictionary<int, string> options = new()
         {
-            {1, "Vehicles"},
-            {2, "Weapons"},
-            {3, "Objects"},
-            {4, "Kits"}
+            { 1, "Vehicles" },
+            { 2, "Weapons" },
+            { 3, "Objects" },
+            { 4, "Kits" }
         };
 
-        int appChoice = GetChoiceIndex(options, "Check AI Templates for:");
+        int appChoice = GetChoiceIndex(options, "\nCheck AI Templates for:");
         switch (appChoice)
         {
             case 1:
@@ -142,6 +143,8 @@ class Kits : Application
 
     public override void Execute()
     {
+        Console.WriteLine("\nStarting application...\n");
+
         string factionDirectory;
         string variantFileText;
 
@@ -218,6 +221,8 @@ class Shaders : Application
 
     public override void Execute()
     {
+        Console.WriteLine("\nStarting application...\n");
+
         string pattern = @"(?<=technique )\w+";
         foreach (string path in _variantFilePaths)
         {
@@ -241,10 +246,12 @@ class FileManager(string path) : Application(path)
 {
     public override void Execute()
     {
-        Console.WriteLine("Enter output file directory: ");
+        Console.WriteLine("\nStarting application...\n");
+
+        Console.Write("Enter output file directory: ");
         string fileDirectory = Console.ReadLine();
 
-        Console.WriteLine("Enter output file name: ");
+        Console.Write("Enter output file name: ");
         string fileName = Console.ReadLine();
 
         string outputFilePath = Path.Combine(fileDirectory, $"{fileName}.txt");

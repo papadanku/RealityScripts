@@ -277,14 +277,10 @@ class FileManager(string path) : Application(path)
     {
         // Initialize SHA256 filestream
         using FileStream fileStream = File.OpenRead(filePath);
-        using SHA256 sha256 = SHA256.Create();
-
-        // Compute SHA256 hash
-        byte[] hashBytes = sha256.ComputeHash(fileStream);
+        StringBuilder stringBuilder = new();
 
         // Convert the hash bytes to a hexadecimal string
-        StringBuilder stringBuilder = new StringBuilder();
-        foreach (byte b in hashBytes)
+        foreach (byte b in SHA256.HashData(fileStream))
         {
             stringBuilder.Append(b.ToString("x2"));
         }

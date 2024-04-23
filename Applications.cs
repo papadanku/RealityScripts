@@ -37,13 +37,11 @@ abstract class Application(string path)
 /// </summary>
 class AI : Application
 {
-    private HashSet<string> _directories;
     private Dictionary<string, HashSet<string>> _filePaths;
     private HashSet<string> _aiTemplates;
 
     public AI(string path) : base(path)
     {
-        _directories = [];
         _filePaths = new();
         _filePaths[".ai"] = [];
         _filePaths[".tweak"] = [];
@@ -60,6 +58,8 @@ class AI : Application
 
     private void GetDirectories()
     {
+        List<string> searchDirectories = [];
+
         // Build available options
         Dictionary<int, string> options = new()
         {
@@ -73,24 +73,32 @@ class AI : Application
         switch (appChoice)
         {
             case 1:
-                _directories.Add("vehicles");
+                searchDirectories.Add("vehicles");
                 break;
             case 2:
-                _directories.Add("weapons");
+                searchDirectories.Add("weapons");
                 break;
             case 3:
-                _directories.Add("staticobjects");
-                _directories.Add("dynamicobjects");
+                searchDirectories.Add("staticobjects");
+                searchDirectories.Add("dynamicobjects");
                 break;
             case 4:
-                _directories.Add("kits");
+                searchDirectories.Add("kits");
                 break;
         }
 
+        // Initialize file paths
+        HashSet<string> allFilePaths = [];
         HashSet<string> fileExtensions = [".ai", ".tweak"];
-        string searchPath = Path.Combine(RepoPath, "objects");
-        string[] allFilePaths = Directory.GetFiles(searchPath, "*", SearchOption.AllDirectories);
 
+        // Get files from selected directories
+        foreach (string directory in searchDirectories)
+        {
+            string searchPath = Path.Combine(RepoPath, "objects", directory);
+            allFilePaths.UnionWith(Directory.GetFiles(searchPath, "*", SearchOption.AllDirectories));
+        }
+
+        // Group filepaths by extension
         foreach (string filePath in allFilePaths)
         {
             string fileExtension = Path.GetExtension(filePath);

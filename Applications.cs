@@ -35,12 +35,20 @@ abstract class Application(string path)
 /// <summary>
 /// Application for processing AI templates.
 /// </summary>
-class AI(string path) : Application(path)
+class AI : Application
 {
-    private readonly List<string> _searchDirectories = [];
-    private readonly List<string> _aiFilePaths = [];
-    private readonly List<string> _tweakFilePaths = [];
-    private readonly HashSet<string> _aiTemplates = [];
+    private HashSet<string> _directories;
+    private Dictionary<string, HashSet<string>> _filePaths;
+    private HashSet<string> _aiTemplates;
+
+    public AI(string path) : base(path)
+    {
+        _directories = [];
+        _filePaths = new();
+        _filePaths[".ai"] = [];
+        _filePaths[".tweak"] = [];
+        _aiTemplates = [];
+    }
 
     public override void Execute()
     {
@@ -65,26 +73,31 @@ class AI(string path) : Application(path)
         switch (appChoice)
         {
             case 1:
-                _searchDirectories.Add("vehicles");
+                _directories.Add("vehicles");
                 break;
             case 2:
-                _searchDirectories.Add("weapons");
+                _directories.Add("weapons");
                 break;
             case 3:
-                _searchDirectories.Add("staticobjects");
-                _searchDirectories.Add("dynamicobjects");
+                _directories.Add("staticobjects");
+                _directories.Add("dynamicobjects");
                 break;
             case 4:
-                _searchDirectories.Add("kits");
+                _directories.Add("kits");
                 break;
         }
 
-        // Construct directories to search
-        foreach (string directory in _searchDirectories)
+        HashSet<string> fileExtensions = [".ai", ".tweak"];
+        string searchPath = Path.Combine(RepoPath, "objects");
+        string[] allFilePaths = Directory.GetFiles(searchPath, "*", SearchOption.AllDirectories);
+
+        foreach (string filePath in allFilePaths)
         {
-            string searchPath = Path.Combine(RepoPath, "objects", directory);
-            _aiFilePaths.AddRange(Directory.GetFiles(searchPath, "*.ai", SearchOption.AllDirectories));
-            _tweakFilePaths.AddRange(Directory.GetFiles(searchPath, "*.tweak", SearchOption.AllDirectories));
+            string fileExtension = Path.GetExtension(filePath);
+            if (fileExtensions.Contains(fileExtension))
+            {
+                _filePaths[fileExtension].Add(filePath);
+            }
         }
     }
 
@@ -93,7 +106,7 @@ class AI(string path) : Application(path)
         // Let the user know that the app is working
         Console.WriteLine("Gathering AI templates...");
 
-        foreach (string path in _aiFilePaths)
+        foreach (string path in _filePaths[".ai"])
         {
             string fileText = File.ReadAllText(path);
             MatchCollection templates = Regex.Matches(fileText, @"(?:(?:ai|kit|weapon)Template(?:Plugin)?\.create )(\w+)", RegexOptions.Compiled);
@@ -111,14 +124,14 @@ class AI(string path) : Application(path)
         // Let the user know that the app is working
         Console.WriteLine("Checking AI templates...");
 
-        foreach (string path in _tweakFilePaths)
+        foreach (string path in _filePaths[".tweak"])
         {
             string fileText = File.ReadAllText(path);
-            MatchCollection templates = Regex.Matches(fileText, @"(?<=\.aiTemplate )\w+", RegexOptions.Compiled);
+            MatchCollection templates = Regex.Matches(fileText, @"(?:\w+\.aiTemplate )(\w+)", RegexOptions.Compiled);
 
             foreach (Match template in templates)
             {
-                string aiTemplate = template.Value;
+                string aiTemplate = template.Groups[1].ToString();
                 if (!_aiTemplates.Contains(aiTemplate))
                 {
                     Console.WriteLine($"\n{template} has missing template!\n\t{path}");

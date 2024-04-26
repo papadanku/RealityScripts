@@ -6,14 +6,6 @@ using System.Text;
 
 class Program
 {
-    public enum App
-    {
-        AI = 1,
-        Kits = 2,
-        Shaders = 3,
-        FileManager = 4
-    }
-
     static private void PrintMenuPrompt(string path)
     {
         // Create the new apps

@@ -1,11 +1,33 @@
 ﻿
-using System.Collections;
-using System.Net.Http.Headers;
-using System.Security.Cryptography;
 using System.Text;
 
 class Program
 {
+    private static int GetChoiceIndex(Application[] apps, string initialPrompt)
+    {
+        // Build prompt string
+        StringBuilder prompt = new();
+        prompt.AppendLine(initialPrompt);
+        for (int i = 0; i < apps.Length; i++)
+        {
+            prompt.AppendLine($"{i}: {apps[i].Description}");
+        }
+
+        // Print prompt to console
+        Console.WriteLine(prompt);
+
+        // Allow the user to choose between N options
+        int choice;
+        do
+        {
+            Console.Write("Enter your choice: ");
+            string? response = Console.ReadLine();
+            choice = int.Parse(response);
+        } while (choice < 0 || choice > apps.Length);
+
+        return choice;
+    }
+
     static private void PrintMenuPrompt(string path)
     {
         // Create the new apps
@@ -17,16 +39,8 @@ class Program
             new FileManager(path),
         ];
 
-        // Create menu options
-        Dictionary<int, string> menuOptions = [];
-        for (int i = 0; i <= apps.Length; i++)
-        {
-            menuOptions[i+1] = apps[i].Description;
-        }
-
-        int appChoice = Application.GetChoiceIndex(menuOptions, "\nWelcome to RealityScipts!\n\nSelect the following apps:");
-
         // Execute the chosen app
+        int appChoice = GetChoiceIndex(apps, "\nWelcome to RealityScipts!\n\nSelect the following apps:");
         apps[appChoice].Execute();
 
         // Keep the app alive
@@ -36,8 +50,13 @@ class Program
 
     static void Main()
     {
-        Console.Write("Enter repository directory path: ");
-        string repoDirPath = Console.ReadLine();
+        string repoDirPath;
+        do
+        {
+            Console.Write("Enter repository directory path: ");
+            repoDirPath = Console.ReadLine();
+        } while(!Path.Exists(repoDirPath));
+
         PrintMenuPrompt(repoDirPath);
     }
 }

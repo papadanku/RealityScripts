@@ -10,7 +10,7 @@ abstract class Application(string path)
 
     public abstract void Execute();
 
-    public static int GetChoiceIndex(Dictionary<int, string> options, string initialPrompt)
+    public static int GetOptionIndex(Dictionary<int, string> options, string initialPrompt)
     {
         StringBuilder prompt = new();
         prompt.AppendLine(initialPrompt);
@@ -72,7 +72,7 @@ class AI : Application
             { 4, "Kits" }
         };
 
-        int appChoice = GetChoiceIndex(options, "\nCheck AI Templates for:");
+        int appChoice = GetOptionIndex(options, "\nCheck AI Templates for:");
         switch (appChoice)
         {
             case 1:
@@ -302,7 +302,7 @@ class FileManager(string path) : Application(path)
             { 2, "Configuration Files" }
         };
 
-        int appChoice = GetChoiceIndex(menuOptions, "Check Duplicate Files for:");
+        int appChoice = GetOptionIndex(menuOptions, "Check Duplicate Files for:");
         FindDuplicateFiles(RepoPath, fileExtensions[appChoice], outputFilePath);
     }
 

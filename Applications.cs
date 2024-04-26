@@ -5,10 +5,12 @@ using System.Text.RegularExpressions;
 
 abstract class Application(string path)
 {
+    public abstract string Description { get; set; }
     public string RepoPath = path;
+
     public abstract void Execute();
 
-    static public int GetChoiceIndex(Dictionary<int, string> options, string initialPrompt)
+    public static int GetChoiceIndex(Dictionary<int, string> options, string initialPrompt)
     {
         StringBuilder prompt = new();
         prompt.AppendLine(initialPrompt);
@@ -37,6 +39,7 @@ abstract class Application(string path)
 /// </summary>
 class AI : Application
 {
+    public override string Description { get; set; } = "AI Kit Checking";
     private Dictionary<string, HashSet<string>> _filePaths;
     private HashSet<string> _aiTemplates;
 
@@ -154,6 +157,7 @@ class AI : Application
 /// </summary>
 class Kits : Application
 {
+    public override string Description { get; set; } = "Check Pre-Allocated Kits";
     private readonly string[] _variantFilePaths = [];
 
     public Kits(string path) : base(path)
@@ -232,6 +236,7 @@ class Kits : Application
 /// </summary>
 class Shaders : Application
 {
+    public override string Description { get; set; } = "Display Shader Techniques";
     private readonly string[] _variantFilePaths;
 
     public Shaders(string path) : base(path)
@@ -265,7 +270,14 @@ class Shaders : Application
 
 class FileManager(string path) : Application(path)
 {
+    public override string Description { get; set; } = "FileManager";
+
     public override void Execute()
+    {
+        PrintDuplicateFiles();
+    }
+
+    private void PrintDuplicateFiles()
     {
         Console.WriteLine("\nStarting application...\n");
 
@@ -297,7 +309,7 @@ class FileManager(string path) : Application(path)
     /// <summary>
     /// Get the hash of a given file.
     /// </summary>
-    static private string GetFileHash(string filePath)
+    private static string GetFileHash(string filePath)
     {
         // Initialize SHA256 filestream
         using FileStream fileStream = File.OpenRead(filePath);

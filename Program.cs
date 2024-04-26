@@ -1,29 +1,36 @@
 ﻿
 using System.Collections;
 using System.Net.Http.Headers;
+using System.Security.Cryptography;
 using System.Text;
 
 class Program
 {
+    public enum App
+    {
+        AI = 1,
+        Kits = 2,
+        Shaders = 3,
+        FileManager = 4
+    }
+
     static private void PrintMenuPrompt(string path)
     {
         // Create the new apps
-        Dictionary<int, Application> apps = new()
-        {
-            { 1, new AI(path) },
-            { 2, new Kits(path) },
-            { 3, new Shaders(path) },
-            { 4, new FileManager(path) },
-        };
+        Application[] apps =
+        [
+            new AI(path),
+            new Kits(path),
+            new Shaders(path),
+            new FileManager(path),
+        ];
 
         // Create menu options
-        Dictionary<int, string> menuOptions = new()
+        Dictionary<int, string> menuOptions = [];
+        for (int i = 0; i <= apps.Length; i++)
         {
-            { 1, "AI" },
-            { 2, "Check Pre-Allocated Kits" },
-            { 3, "Display Shader Techniques" },
-            { 4, "FileManager" }
-        };
+            menuOptions[i+1] = apps[i].Description;
+        }
 
         int appChoice = Application.GetChoiceIndex(menuOptions, "\nWelcome to RealityScipts!\n\nSelect the following apps:");
 

@@ -10,7 +10,7 @@ class Program
         prompt.AppendLine(initialPrompt);
         for (int i = 0; i < apps.Length; i++)
         {
-            prompt.AppendLine($"{i}: {apps[i].Description}");
+            prompt.AppendLine($"[{i}]: {apps[i].Description}");
         }
 
         // Print prompt to console
@@ -55,7 +55,7 @@ class Program
         {
             Console.Write("Enter repository directory path: ");
             repoDirPath = Console.ReadLine();
-        } while(!Path.Exists(repoDirPath));
+        } while (!Path.Exists(repoDirPath));
 
         PrintMenuPrompt(repoDirPath);
     }

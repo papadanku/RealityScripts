@@ -10,15 +10,16 @@ abstract class Application(string path)
 
     public abstract void Execute();
 
-    public static int GetOptionIndex(Dictionary<int, string> options, string initialPrompt)
+    public static int GetOptionIndex(string[] options, string initialPrompt)
     {
         StringBuilder prompt = new();
         prompt.AppendLine(initialPrompt);
-
-        foreach (KeyValuePair<int, string> option in options)
+        for (int i = 0; i < options.Length; i++)
         {
-            prompt.AppendLine($"[{option.Key}] {option.Value}");
+            prompt.AppendLine($"[{i}] {options[i]}");
         }
+
+        // Print prompt to terminal
         Console.WriteLine(prompt);
 
         // Allow the user to choose between N options
@@ -28,7 +29,7 @@ abstract class Application(string path)
             Console.Write("Enter your choice: ");
             string? response = Console.ReadLine();
             choice = int.Parse(response);
-        } while (!options.ContainsKey(choice));
+        } while (choice < 0 || choice > options.Length);
 
         return choice;
     }
@@ -64,15 +65,15 @@ class AI : Application
         List<string> searchDirectories = [];
 
         // Build available options
-        Dictionary<int, string> options = new()
-        {
-            { 1, "Vehicles" },
-            { 2, "Weapons" },
-            { 3, "Objects" },
-            { 4, "Kits" }
-        };
+        string[] menuOptions =
+        [
+            "Vehicles",
+            "Weapons",
+            "Objects",
+            "Kits"
+        ];
 
-        int appChoice = GetOptionIndex(options, "\nCheck AI Templates for:");
+        int appChoice = GetOptionIndex(menuOptions, "\nCheck AI Templates for:");
         switch (appChoice)
         {
             case 1:
@@ -289,18 +290,18 @@ class FileManager(string path) : Application(path)
 
         string outputFilePath = Path.Combine(fileDirectory, $"{fileName}.txt");
 
-        Dictionary<int, HashSet<string>> fileExtensions = new()
-        {
-            { 1, [".ogg", ".wav"] },
-            { 2, [".con", ".tweak"] }
-        };
+        HashSet<string>[] fileExtensions =
+        [
+            [".ogg", ".wav"],
+            [".con", ".tweak"]
+        ];
 
         // Create menu options
-        Dictionary<int, string> menuOptions = new()
-        {
-            { 1, "Audio Files" },
-            { 2, "Configuration Files" }
-        };
+        string[] menuOptions =
+        [
+            "Audio Files",
+            "Configuration Files"
+        ];
 
         int appChoice = GetOptionIndex(menuOptions, "Check Duplicate Files for:");
         FindDuplicateFiles(RepoPath, fileExtensions[appChoice], outputFilePath);

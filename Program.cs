@@ -1,7 +1,7 @@
 ﻿
 using System.Text;
 
-class Program
+internal class Menu
 {
     private static int GetChoiceIndex(Application[] apps, string initialPrompt)
     {
@@ -28,7 +28,7 @@ class Program
         return choice;
     }
 
-    static private void PrintMenuPrompt(string path)
+    static public void PrintMenuPrompt(string path)
     {
         // Create the new apps
         Application[] apps =
@@ -47,6 +47,11 @@ class Program
         Console.Write("Press enter to exit the app.");
         Console.ReadLine();
     }
+}
+
+class Program
+{
+
 
     static void Main()
     {
@@ -57,6 +62,6 @@ class Program
             repoDirPath = Console.ReadLine();
         } while (!Path.Exists(repoDirPath));
 
-        PrintMenuPrompt(repoDirPath);
+        Menu.PrintMenuPrompt(repoDirPath);
     }
 }

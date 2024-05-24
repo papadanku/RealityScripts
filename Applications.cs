@@ -350,7 +350,7 @@ class FileManager(string path) : Application(path)
             }
         }
 
-        Console.WriteLine("Computing duplicate...");
+        Console.WriteLine("Finding duplicates...");
         using (StreamWriter streamWriter = new(outputFilePath))
         {
             foreach (var fileHashDict in fileMap)

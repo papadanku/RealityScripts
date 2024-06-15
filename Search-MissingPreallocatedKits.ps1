@@ -69,6 +69,6 @@ function Search-Kits() {
     }
 }
 
-# Main app
+# Main program
 Search-MissingTemplates
 $MissingKits | Format-List -AutoSize

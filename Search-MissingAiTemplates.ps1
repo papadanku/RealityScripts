@@ -69,7 +69,7 @@ function Find-Templates {
     }
 }
 
-# Main main program
+# Main program
 Get-Directories
 Get-Templates
 Find-Templates

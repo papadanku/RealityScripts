@@ -23,5 +23,6 @@ function Search-ShaderTechniques {
     }
 }
 
+# Main program
 Search-ShaderTechniques
 $TechniqueTable | Format-List

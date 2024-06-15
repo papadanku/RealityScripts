@@ -35,6 +35,7 @@ function Get-Directories {
         }
     }
 }
+
 function Get-Templates {
     # Let the user know that the app is working
     Write-Host "Gathering AI templates..."
@@ -48,6 +49,7 @@ function Get-Templates {
         }
     }
 }
+
 function Find-Templates {
     # Let the user know that the app is working
     Write-Host "Checking AI templates..."

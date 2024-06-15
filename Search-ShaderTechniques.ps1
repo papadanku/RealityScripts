@@ -16,7 +16,7 @@ function Search-ShaderTechniques {
         if ($techniques.Count -gt 0) {
             $techniqueSet = New-Object System.Collections.Generic.HashSet[string]
             foreach ($technique in $techniques) {
-                $techniqueSet.Add($technique)
+                [void]$techniqueSet.Add($technique)
             }
             $TechniqueTable[$path] = $techniqueSet
         }

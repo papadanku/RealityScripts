@@ -31,7 +31,7 @@ function Get-Directories {
     foreach ($filePath in $allFilePaths) {
         $fileExtension = [System.IO.Path]::GetExtension($filePath);
         if ($FilePaths.ContainsKey($fileExtension)) {
-            $FilePaths[$fileExtension].Add($filePath)
+            [void]$FilePaths[$fileExtension].Add($filePath)
         }
     }
 }
@@ -45,7 +45,7 @@ function Get-Templates {
         $templates = [regex]::Matches($fileText, '(?:(?:ai|kit|weapon)Template(?:Plugin)?\.create )(\w+)')
 
         foreach ($template in $templates) {
-            $AITemplates.Add($template.Groups[1].ToString())
+            [void]$AITemplates.Add($template.Groups[1].ToString())
         }
     }
 }
@@ -63,7 +63,7 @@ function Find-Templates {
             $aiTemplate = $template.Groups[1].ToString()
             if (-not $AITemplates.Contains($aiTemplate)) {
                 $key = Resolve-Path $path -Relative
-                $MissingTemplates.Add($key, $aiTemplate)
+                [void]$MissingTemplates.Add($key, $aiTemplate)
             }
         }
     }

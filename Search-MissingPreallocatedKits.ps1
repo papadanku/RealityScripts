@@ -48,13 +48,13 @@ function Search-Kits() {
             if ($kitTweakFilePath.Contains("preload")) {
                 $kitMatches = [regex]::Matches($kitTweakFileText, '(?<=ObjectTemplate\.setObjectTemplate \d )\w+')
                 foreach ($kitMatch in $kitMatches) {
-                    $allocatedKits.Add($kitMatch.Value)
+                    [void]$allocatedKits.Add($kitMatch.Value)
                 }
             }
             else {
                 $kitMatches = [regex]::Matches($kitTweakFileText, '(?<=ObjectTemplate\.create Kit )\w+')
                 foreach ($kitMatch in $kitMatches) {
-                    $loadedKits.Add($kitMatch)
+                    [void]$loadedKits.Add($kitMatch)
                 }
             }
         }
@@ -65,7 +65,7 @@ function Search-Kits() {
 
     $loadedKits.ExceptWith($allocatedKits)
     if ($loadedKits.Count -gt 0) {
-        $MissingKits.Add($variant, $loadedKits)
+        [void]$MissingKits.Add($variant, $loadedKits)
     }
 }
 

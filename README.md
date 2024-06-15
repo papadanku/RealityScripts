@@ -1,2 +1,2 @@
 # RealityScripts
-Helper C# scripts for Project Reality: BF2
+Helper PowerShell scripts for Project Reality: BF2

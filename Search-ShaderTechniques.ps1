@@ -4,6 +4,7 @@ Read-Host "Enter repo path" | Set-Location
 $SearchPath = Join-Path -Path @(Get-Location) -ChildPath "shaders"
 $VariantFilePaths = Get-ChildItem -Recurse -Path $SearchPath -Filter "*.fx*"
 $TechniqueTable = @{}
+
 function Search-ShaderTechniques {
     Write-Host "Searching shader techniques..."
 

@@ -1,5 +1,6 @@
 
-Read-Host "Enter Repo Path" | Set-Location
+. .\Initialize-Script.ps1
+
 $FilePaths = @{}
 $FilePaths[".ai"] = New-Object System.Collections.Generic.HashSet[string]
 $FilePaths[".tweak"] = New-Object System.Collections.Generic.HashSet[string]
@@ -10,7 +11,7 @@ function Get-Directories {
     $searchDictionaries = @()
     
     $menuOptions = @("Vehicles", "Weapons", "Objects", "Kits")
-    $appChoice = [Application]::GetOptionIndex($menuOptions, "Check AI Templates for:")
+    $appChoice = [RealityScripts]::GetOptionIndex($menuOptions, "Check AI Templates for:")
     switch ($appChoice) {
         1 { $searchDictionaries = ("vehicles") }
         2 { $searchDictionaries = ("weapons") }

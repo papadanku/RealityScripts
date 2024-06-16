@@ -1,5 +1,5 @@
 
-Read-Host "Enter repo path" | Set-Location
+. .\Initialize-Script.ps1
 
 $SearchPath = Join-Path -Path @(Get-Location) -ChildPath "shaders"
 $VariantFilePaths = Get-ChildItem -Recurse -Path $SearchPath -Filter "*.fx*"

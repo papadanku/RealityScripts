@@ -1,5 +1,5 @@
 
-class Application {
+class RealityScripts {
     static [int] GetOptionIndex([string[]] $options, [string] $initialPrompt) {
         Write-Host $initialPrompt
         for ($i = 0; $i -lt $options.Count; $i++) {

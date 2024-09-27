@@ -11,7 +11,7 @@ foreach ($path in $levelFilePaths) {
 
         $tempSettingName = $Matches[1]
         $settingValueGroup = $Matches[2] -split '/' | ForEach-Object {
-            if ($Matches[1].ToLower().Contains("fog"))
+            if ($Matches[1].ToLower().Contains("fogcolor"))
             {
                 $toFloat = [float]$_ / 256.0
                 $toFloat *= $toFloat

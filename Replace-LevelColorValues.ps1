@@ -9,19 +9,27 @@ foreach ($path in $levelFilePaths) {
     foreach ($oldSetting in $colorSettings) {
         $oldSetting -match "([\w\.]*?color)\s+([\d\.\/]+)"
 
-        if ($Matches[1].ToLower().Contains("fogcolor")) {
-            $tempSettingName = $Matches[1]
-            $settingValueGroup = $Matches[2] -split '/' | ForEach-Object {
+        $tempSettingName = $Matches[1]
+        $settingValueGroup = $Matches[2] -split '/' | ForEach-Object {
+            if ($Matches[1].ToLower().Contains("fogcolor")) {
                 $toFloat = [float]$_ / 256.0
                 $toFloat *= $toFloat
                 $toFloat * 256.0
             }
-
-            $settingValueGroup = $settingValueGroup -join "/"
-            $newSetting = "$tempSettingName $settingValueGroup"
-
-            $fileText = $fileText -replace $oldSetting, $newSetting
+            else {
+                if ($path.BaseName.ToLower().Contains("water")) {
+                    [float]$_ * [float]$_
+                }
+                else {
+                    [System.Math]::Sqrt([float]$_)
+                }
+            }
         }
+
+        $settingValueGroup = $settingValueGroup -join "/"
+        $newSetting = "$tempSettingName $settingValueGroup"
+
+        $fileText = $fileText -replace $oldSetting, $newSetting
     }
 
     Set-Content $path -Value $fileText

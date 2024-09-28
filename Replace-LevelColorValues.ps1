@@ -19,7 +19,7 @@ foreach ($path in $levelFilePaths) {
             }
             else
             {
-                [float]$_ * [float]$_
+                [float]$_s
             }
         }
 
@@ -27,6 +27,7 @@ foreach ($path in $levelFilePaths) {
         $newSetting = "$tempSettingName $settingValueGroup"
 
         $fileText = $fileText -replace $oldSetting, $newSetting
-        Set-Content $path -Value $fileText
     }
+
+    Set-Content $path -Value $fileText
 }

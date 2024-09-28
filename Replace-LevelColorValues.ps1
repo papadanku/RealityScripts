@@ -5,7 +5,7 @@ $levelFilePaths = Get-ChildItem -Path $levelsDir -Depth 1 -Filter "*.con" | Wher
 foreach ($path in $levelFilePaths) {
     $fileText = Get-Content $path
     $colorSettings = $fileText -match "[\w\.]*?color\s+[\d\.\/]+"
-    
+
     foreach ($oldSetting in $colorSettings) {
         $oldSetting -match "([\w\.]*?color)\s+([\d\.\/]+)"
 

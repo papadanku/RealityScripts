@@ -1,7 +1,7 @@
 
 . .\Initialize-Script.ps1
 
-$SearchPath = Join-Path @(Get-Location) -ChildPath "objects" -AdditionalChildPath "kits"
+$SearchPath = Join-Path @($GlobalPath) -ChildPath "objects" -AdditionalChildPath "kits"
 $VariantFilePaths = [System.IO.Directory]::GetFiles($searchPath, "variants.inc", "AllDirectories")
 $MissingKits = @{}
 

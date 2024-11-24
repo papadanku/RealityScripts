@@ -3,7 +3,7 @@
 
 # Get all audio files recursively
 Write-Host "Getting audio files..."
-$AudioFiles = Get-ChildItem -Recurse -Path @(Get-Location) | Where-Object { $_.Extension -match '\.(wav|ogg)$' }
+$AudioFiles = Get-ChildItem -Recurse -Path @($GlobalPath) | Where-Object { $_.Extension -match '\.(wav|ogg)$' }
 
 # Get file hashes for all audio files
 Write-Host "Getting file hashes..."

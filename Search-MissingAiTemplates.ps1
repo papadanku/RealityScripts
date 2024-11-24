@@ -24,7 +24,7 @@ function Get-Directories {
 
     # Get files from selected directories
     foreach ($directory in $searchDictionaries) {
-        $searchPath = Join-Path -Path @(Get-Location) -ChildPath "objects" -AdditionalChildPath $directory
+        $searchPath = Join-Path -Path @($GlobalPath) -ChildPath "objects" -AdditionalChildPath $directory
         $allFilePaths.UnionWith([System.IO.Directory]::GetFiles($searchPath, "*", "AllDirectories"))
     }
 

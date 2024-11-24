@@ -1,7 +1,7 @@
 
 . .\Initialize-Script.ps1
 
-$WeaponFiles = Get-ChildItem -Recurse -Filter "*.tweak" -Path @(Get-Location)
+$WeaponFiles = Get-ChildItem -Recurse -Filter "*.tweak" -Path @($GlobalPath)
 
 $totalGrenadeFiles = 0
 $totalAIFiles = 0

@@ -50,7 +50,6 @@ function Get-Templates {
         }
     }
 }
-
 function Find-Templates {
     # Let the user know that the app is working
     Write-Host "Checking AI templates..."
